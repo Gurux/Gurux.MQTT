@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.329
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gurux.Bridge", "Gurux.Bridge.csproj", "{EB3393B5-2AE4-4D66-8FBA-28E1A0D74A9E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EB3393B5-2AE4-4D66-8FBA-28E1A0D74A9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB3393B5-2AE4-4D66-8FBA-28E1A0D74A9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB3393B5-2AE4-4D66-8FBA-28E1A0D74A9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB3393B5-2AE4-4D66-8FBA-28E1A0D74A9E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AC6F6240-0088-48DB-8561-D5AB31CE10D9}
+	EndGlobalSection
+EndGlobal

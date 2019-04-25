@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+ <PropertyGroup>
+    <RootNamespace>Gurux.MQTT</RootNamespace>
+    <AssemblyName>Gurux.MQTT</AssemblyName>
+    <Company>Gurux Ltd</Company>
+    <Authors>Gurux Ltd</Authors>
+    <Copyright>Copyright (c) 1998-2019 Gurux Ltd. All rights reserved.</Copyright>
+    <PackageProjectUrl>www.gurux.fi/index.php?q=GXMedia</PackageProjectUrl>
+    <PackageLicenseUrl>http://www.gnu.org/licenses/gpl-2.0.txt</PackageLicenseUrl>
+    <Description>MQTT media component</Description>
+  <Version Condition=" '$(BUILD_BUILDNUMBER)' == '' ">0.0.1-local</Version>
+    <Version Condition=" '$(BUILD_BUILDNUMBER)' != '' ">$(BUILD_BUILDNUMBER)</Version>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <TargetFrameworks>net46;net452;netstandard2.0;netcoreapp2.1</TargetFrameworks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/gurux/gurux.mqtt</RepositoryUrl>
+    <PackageTags>Gurux Device Framework MQTT</PackageTags>
+    <PackageId>Gurux.MQTT</PackageId>
+    <ApplicationIcon>mqtt.ico</ApplicationIcon>
+    <PackageIconUrl>http://www.gurux.org/gurux.ico</PackageIconUrl>
+  </PropertyGroup>
+ 
+ <ItemGroup>
+   <Compile Update="Properties\Resources.Designer.cs">
+     <DesignTime>True</DesignTime>
+     <AutoGen>True</AutoGen>
+     <DependentUpon>Resources.resx</DependentUpon>
+   </Compile>
+ </ItemGroup>
+ <ItemGroup>
+   <EmbeddedResource Update="Properties\Resources.resx">
+     <Generator>ResXFileCodeGenerator</Generator>
+     <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+   </EmbeddedResource>
+ </ItemGroup>
+ <ItemGroup>
+    <PackageReference Include="Gurux.Common" Version="8.1.1811.1101" />
+    <PackageReference Include="MQTTnet" Version="2.8.5" />
+ </ItemGroup>
+ 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452' or '$(TargetFramework)' == 'net46' ">
+    <Reference Include="System.Data.Linq" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+
+</Project>

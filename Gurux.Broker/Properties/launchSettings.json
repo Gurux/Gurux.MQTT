@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Gurux.Broker": {
+      "commandName": "Project",
+      "commandLineArgs": "-p 1883 -t Verbose"
+    }
+  }
+}

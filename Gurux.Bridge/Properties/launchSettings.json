@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Gurux.Bridge": {
+      "commandName": "Project",
+      "commandLineArgs": "-h localhost -p 1883 -t Verbose"
+    }
+  }
+}
