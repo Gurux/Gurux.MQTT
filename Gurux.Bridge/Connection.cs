@@ -33,6 +33,7 @@ using Gurux.Common;
 using Gurux.MQTT.Message;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 
 namespace Gurux.Broker
 {
@@ -135,7 +136,7 @@ namespace Gurux.Broker
         /// <summary>
         /// Media.
         /// </summary>
-        [Ignore]
+        [IgnoreDataMember]
         public IGXMedia Target
         {
             get;
@@ -145,7 +146,7 @@ namespace Gurux.Broker
         /// <summary>
         /// Last received message.
         /// </summary>
-        [Ignore]
+        [IgnoreDataMember]
         public GXMessage Message
         {
             get;

@@ -12,7 +12,7 @@
   <Version Condition=" '$(BUILD_BUILDNUMBER)' == '' ">0.0.1-local</Version>
     <Version Condition=" '$(BUILD_BUILDNUMBER)' != '' ">$(BUILD_BUILDNUMBER)</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <TargetFrameworks>net46;net452;netstandard2.0;netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>net46;net452;netcoreapp2.1;netcoreapp2.0</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/gurux/gurux.mqtt</RepositoryUrl>
     <PackageTags>Gurux Device Framework MQTT</PackageTags>

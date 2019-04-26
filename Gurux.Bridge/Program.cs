@@ -53,6 +53,7 @@ namespace Gurux.Broker
                     settings.BrokerAddress = "localhost";
                     settings.BrokerPort = 1883;
                     settings.Name = Guid.NewGuid().ToString();
+                    m.Name = "1";
                     m.Type = "Net";
                     m.Settings = "<IP>localhost</IP><Port>4061</Port>";
                     settings.Connections = new List<Media>();
@@ -60,10 +61,9 @@ namespace Gurux.Broker
 
                     //Add serial port connection example
                     m = new Media();
-                    settings.Name = Guid.NewGuid().ToString();
+                    m.Name = "2";
                     m.Type = "Serial";
                     m.Settings = "<Port>COM1</Port>";
-                    settings.Connections = new List<Media>();
                     settings.Connections.Add(m);
                     Gurux.Common.JSon.GXJsonParser.Save(settings, Path.Combine(Directory.GetCurrentDirectory(), "connections.json"));
                     return 0;

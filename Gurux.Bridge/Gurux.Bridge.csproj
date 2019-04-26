@@ -2,13 +2,13 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFrameworks>net46;net452;netcoreapp2.1;netcoreapp2.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Gurux.Common" Version="8.1.1811.1101" />
     <PackageReference Include="Gurux.Net" Version="8.1.1903.601" />
-    <PackageReference Include="Gurux.Serial" Version="8.1.1904.1802" />
+    <PackageReference Include="Gurux.Serial" Version="8.1.1904.2601" />
     <PackageReference Include="MQTTnet" Version="2.8.5" />
   </ItemGroup>
 
