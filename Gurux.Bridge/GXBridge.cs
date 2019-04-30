@@ -173,15 +173,6 @@ namespace Gurux.Broker
                                     break;
                                 case MesssageType.Send:
                                     it.Target.Send(GXCommon.HexToBytes(msg.frame), null);
-                                    msg2 = new GXMessage() { id = msg.id, type = (int)MesssageType.Send, sender = it.Name };
-                                    str = parser.Serialize(msg2);
-                                    message = new MqttApplicationMessageBuilder()
-                                    .WithTopic(msg.sender)
-                                    .WithPayload(str)
-                                    .WithExactlyOnceQoS()
-                                    .WithRetainFlag()
-                                    .Build();
-                                    mqttClient.PublishAsync(message);
                                     break;
                                 case MesssageType.Close:
                                     it.Target.Close();

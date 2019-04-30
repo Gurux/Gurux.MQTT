@@ -35,7 +35,7 @@
    </EmbeddedResource>
  </ItemGroup>
  <ItemGroup>
-    <PackageReference Include="Gurux.Common" Version="8.1.1811.1101" />
+    <PackageReference Include="Gurux.Common" Version="8.1.1904.3002" />
     <PackageReference Include="MQTTnet" Version="2.8.5" />
  </ItemGroup>
  

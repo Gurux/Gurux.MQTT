@@ -19,7 +19,7 @@ namespace Gurux.MQTT.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -79,6 +79,24 @@ namespace Gurux.MQTT.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid broker address..
+        /// </summary>
+        internal static string InvalidBrokerName {
+            get {
+                return ResourceManager.GetString("InvalidBrokerName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid broker port..
+        /// </summary>
+        internal static string InvalidBrokerPort {
+            get {
+                return ResourceManager.GetString("InvalidBrokerPort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid client..
         /// </summary>
         internal static string InvalidClient {
@@ -93,24 +111,6 @@ namespace Gurux.MQTT.Properties {
         internal static string InvalidConnection {
             get {
                 return ResourceManager.GetString("InvalidConnection", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid host name..
-        /// </summary>
-        internal static string InvalidHostName {
-            get {
-                return ResourceManager.GetString("InvalidHostName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid port name..
-        /// </summary>
-        internal static string InvalidPortName {
-            get {
-                return ResourceManager.GetString("InvalidPortName", resourceCulture);
             }
         }
         

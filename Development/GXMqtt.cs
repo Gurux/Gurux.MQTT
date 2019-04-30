@@ -41,6 +41,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace Gurux.MQTT
@@ -48,18 +49,12 @@ namespace Gurux.MQTT
     /// <summary>
     /// GXMqtt implements  MQTT client that sends bytes to the MQTT broker.
     /// </summary>
-    public class GXMqtt : IGXMedia
+    public class GXMqtt : IGXMedia2
     {
         /// <summary>
         /// Sync object.
         /// </summary>
         private object sync = new object();
-
-        /// <summary>
-        /// Is data send syncronously.
-        /// </summary>
-        readonly object synchronous = new object();
-
         internal GXSynchronousMediaBase syncBase;
 
         //Events
@@ -195,23 +190,17 @@ namespace Gurux.MQTT
         }
 
         /// <inheritdoc cref="IGXMedia.Synchronous"/>
-        public object Synchronous
-        {
-            get
-            {
-                return synchronous;
-            }
-        }
+        public object Synchronous { get; } = new object();
 
         /// <inheritdoc cref="IGXMedia.IsSynchronous"/>
         public bool IsSynchronous
         {
             get
             {
-                bool reserved = System.Threading.Monitor.TryEnter(synchronous, 0);
+                bool reserved = System.Threading.Monitor.TryEnter(Synchronous, 0);
                 if (reserved)
                 {
-                    System.Threading.Monitor.Exit(synchronous);
+                    System.Threading.Monitor.Exit(Synchronous);
                 }
                 return !reserved;
             }
@@ -231,11 +220,11 @@ namespace Gurux.MQTT
         {
             if (port == 0)
             {
-                throw new Exception(Resources.InvalidPortName);
+                throw new Exception(Resources.InvalidBrokerPort);
             }
             if (!string.IsNullOrEmpty(serverAddress))
             {
-                throw new Exception(Resources.InvalidHostName);
+                throw new Exception(Resources.InvalidBrokerName);
             }
             if (!string.IsNullOrEmpty(topic))
             {
@@ -591,7 +580,14 @@ namespace Gurux.MQTT
             {
                 GXMessage msg = new GXMessage() { id = MessageId, type = (int)MesssageType.Close, sender = clientId };
                 PublishMessage(msg);
-                replyReceivedEvent.WaitOne();
+                if (AsyncWaitTime == 0)
+                {
+                    replyReceivedEvent.WaitOne();
+                }
+                else
+                {
+                    replyReceivedEvent.WaitOne((int)AsyncWaitTime * 1000);
+                }
                 mqttClient.DisconnectAsync().Wait();
                 mqttClient = null;
                 if (lastException != null)
@@ -682,7 +678,7 @@ namespace Gurux.MQTT
                 string str = ASCIIEncoding.ASCII.GetString(e.ApplicationMessage.Payload);
                 GXJsonParser parser = new GXJsonParser();
                 GXMessage msg = parser.Deserialize<GXMessage>(str);
-                if (msg.id == messageId)
+                if (msg.id == messageId || (MesssageType)msg.type == MesssageType.Close || (MesssageType)msg.type == MesssageType.Exception)
                 {
                     switch ((MesssageType) msg.type)
                     {
@@ -691,7 +687,7 @@ namespace Gurux.MQTT
                             replyReceivedEvent.Set();
                             break;
                         case MesssageType.Send:
-                         //   replyReceivedEvent.Set();
+                            //replyReceivedEvent.Set();
                             break;
                         case MesssageType.Receive:
                             byte[] bytes = Gurux.Common.GXCommon.HexToBytes(msg.frame);
@@ -731,7 +727,16 @@ namespace Gurux.MQTT
             };
             try
             {
+                replyReceivedEvent.Reset();
                 mqttClient.ConnectAsync(options).Wait();
+                if (AsyncWaitTime == 0)
+                {
+                    mqttClient.ConnectAsync(options).Wait();
+                }
+                else
+                {
+                    mqttClient.ConnectAsync(options).Wait((int)AsyncWaitTime * 1000);
+                }
             }
             catch (AggregateException ex)
             {
@@ -778,6 +783,26 @@ namespace Gurux.MQTT
                 GXMessage msg = new GXMessage() { id = MessageId, type = (int) MesssageType.Send, sender = clientId, frame = Common.GXCommon.ToHex(tmp) };
                 PublishMessage(msg);
             }
+        }
+
+        public uint AsyncWaitTime
+        {
+            get;
+            set;
+        }
+
+        public EventWaitHandle AsyncWaitHandle
+        {
+            get
+            {
+                return null;
+            }
+        }
+
+        public uint ReceiveDelay
+        {
+            get;
+            set;
         }
     }
 }

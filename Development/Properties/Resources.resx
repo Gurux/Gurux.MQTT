@@ -123,17 +123,17 @@
   <data name="ClientSettings" xml:space="preserve">
     <value>Client Settings:</value>
   </data>
+  <data name="InvalidBrokerName" xml:space="preserve">
+    <value>Invalid broker address.</value>
+  </data>
+  <data name="InvalidBrokerPort" xml:space="preserve">
+    <value>Invalid broker port.</value>
+  </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>Invalid client.</value>
   </data>
   <data name="InvalidConnection" xml:space="preserve">
     <value>Invalid connection.</value>
-  </data>
-  <data name="InvalidHostName" xml:space="preserve">
-    <value>Invalid host name.</value>
-  </data>
-  <data name="InvalidPortName" xml:space="preserve">
-    <value>Invalid port name.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>Invalid topic.</value>
