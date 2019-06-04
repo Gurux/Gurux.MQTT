@@ -116,18 +116,18 @@ namespace Gurux.Broker
 
             var mqttServer = new MqttFactory().CreateMqttServer();
             await mqttServer.StartAsync(optionsBuilder.Build());
-            mqttServer.ApplicationMessageReceived += (s, e) =>
+            mqttServer.UseApplicationMessageReceivedHandler(t =>
             {
-                if (e.ClientId != null)
+                if (t.ClientId != null)
                 {
                     if (trace == TraceLevel.Verbose)
                     {
                         Console.WriteLine("### Received message ###");
-                        Console.WriteLine($"+ Topic = {e.ApplicationMessage.Topic}");
-                        Console.WriteLine($"+ Payload = {Encoding.UTF8.GetString(e.ApplicationMessage.Payload)}");
+                        Console.WriteLine($"+ Topic = {t.ApplicationMessage.Topic}");
+                        Console.WriteLine($"+ Payload = {Encoding.UTF8.GetString(t.ApplicationMessage.Payload)}");
                     }
                 }
-            };
+            });
         }
     }
 }

@@ -36,6 +36,7 @@ using Gurux.MQTT.Properties;
 using Gurux.Shared;
 using MQTTnet;
 using MQTTnet.Client;
+using MQTTnet.Client.Options;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -91,6 +92,16 @@ namespace Gurux.MQTT
         string topic;
 
         /// <summary>
+        /// Used client ID.
+        /// </summary>
+        string clientId;
+
+        /// <summary>
+        /// Client ID that user want's to use.
+        /// </summary>
+        string userClientId;
+
+        /// <summary>
         /// Server address.
         /// </summary>
         string serverAddress;
@@ -99,8 +110,7 @@ namespace Gurux.MQTT
         /// </summary>
         int port = 1883;
 
-        string clientId;
-        static MqttFactory factory = new MqttFactory();
+        static readonly MqttFactory factory = new MqttFactory();
         IMqttClient mqttClient;
         string IGXMedia.Name => "MQTT";
 
@@ -152,6 +162,10 @@ namespace Gurux.MQTT
                     tmp += "<Port>" + port + "</Port>" + Environment.NewLine;
                 }
                 tmp += "<Topic>" + topic + "</Topic>" + Environment.NewLine;
+                if (!string.IsNullOrEmpty(ClientId))
+                {
+                    tmp += "<ClientId>" + ClientId + "</ClientId>" + Environment.NewLine;
+                }
                 return tmp;
             }
             set
@@ -176,6 +190,9 @@ namespace Gurux.MQTT
                                         break;
                                     case "IP":
                                         serverAddress = (string)xmlReader.ReadElementContentAs(typeof(string), null);
+                                        break;
+                                    case "ClientId":
+                                        ClientId = (string)xmlReader.ReadElementContentAs(typeof(string), null);
                                         break;
                                 }
                             }
@@ -344,7 +361,7 @@ namespace Gurux.MQTT
         /// </value>
         /// <seealso cref="Open">Open</seealso>
         /// <seealso cref="Port">Port</seealso>
-        /// <seealso cref="Protocol">Protocol</seealso>
+        /// <seealso cref="ClientId">Protocol</seealso>
         [DefaultValue("")]
         [Category("Communication")]
         [Description("Retrieves or sets used topic.")]
@@ -363,6 +380,35 @@ namespace Gurux.MQTT
                 }
             }
         }
+
+        /// <summary>
+        /// Retrieves or sets the name or IP address of the host.
+        /// </summary>
+        /// <value>
+        /// Used topic.
+        /// </value>
+        /// <seealso cref="Open">Open</seealso>
+        /// <seealso cref="Port">Port</seealso>
+        /// <seealso cref="Topic">Protocol</seealso>
+        [DefaultValue("")]
+        [Category("Communication")]
+        [Description("Retrieves or sets used client ID.")]
+        public string ClientId
+        {
+            get
+            {
+                return userClientId;
+            }
+            set
+            {
+                if (userClientId != value)
+                {
+                    userClientId = value;
+                    NotifyPropertyChanged("ClientId");
+                }
+            }
+        }
+
 
         /// <summary>
         /// MQTT server address.
@@ -568,7 +614,6 @@ namespace Gurux.MQTT
             .WithTopic(topic)
             .WithPayload(str)
             .WithExactlyOnceQoS()
-            .WithRetainFlag()
             .Build();
             mqttClient.PublishAsync(message).Wait();
         }
@@ -576,10 +621,17 @@ namespace Gurux.MQTT
         public void Close()
         {
             lastException = null;
-            if (mqttClient != null)
+            if (mqttClient != null && mqttClient.IsConnected)
             {
                 GXMessage msg = new GXMessage() { id = MessageId, type = (int)MesssageType.Close, sender = clientId };
-                PublishMessage(msg);
+                try
+                {
+                    PublishMessage(msg);
+                }
+                catch (Exception)
+                {
+                    replyReceivedEvent.Set();
+                }
                 if (AsyncWaitTime == 0)
                 {
                     replyReceivedEvent.WaitOne();
@@ -610,7 +662,7 @@ namespace Gurux.MQTT
             BytesReceived += (uint)bytes;
             if (this.IsSynchronous)
             {
-                TraceEventArgs arg = null;
+                TraceEventArgs arg;
                 lock (syncBase.receivedSync)
                 {
                     int index = syncBase.receivedSize;
@@ -669,32 +721,38 @@ namespace Gurux.MQTT
         {
             Close();
             mqttClient = factory.CreateMqttClient();
-            clientId = Guid.NewGuid().ToString();
+            if (string.IsNullOrEmpty(userClientId))
+            {
+                clientId = Guid.NewGuid().ToString();
+            }
+            else
+            {
+                clientId = userClientId;
+            }
             var options = new MqttClientOptionsBuilder()
             .WithTcpServer(serverAddress, port).WithClientId(clientId)
             .Build();
-            mqttClient.ApplicationMessageReceived += (s, e) =>
+            mqttClient.UseApplicationMessageReceivedHandler(t =>
             {
-                string str = ASCIIEncoding.ASCII.GetString(e.ApplicationMessage.Payload);
+                string str = ASCIIEncoding.ASCII.GetString(t.ApplicationMessage.Payload);
                 GXJsonParser parser = new GXJsonParser();
                 GXMessage msg = parser.Deserialize<GXMessage>(str);
                 if (msg.id == messageId || (MesssageType)msg.type == MesssageType.Close || (MesssageType)msg.type == MesssageType.Exception)
                 {
-                    switch ((MesssageType) msg.type)
+                    switch ((MesssageType)msg.type)
                     {
                         case MesssageType.Open:
                             m_OnMediaStateChange?.Invoke(this, new MediaStateEventArgs(MediaState.Open));
                             replyReceivedEvent.Set();
                             break;
                         case MesssageType.Send:
-                            //replyReceivedEvent.Set();
                             break;
                         case MesssageType.Receive:
                             byte[] bytes = Gurux.Common.GXCommon.HexToBytes(msg.frame);
                             replyReceivedEvent.Set();
                             if (bytes.Length != 0)
                             {
-                                HandleReceivedData(bytes.Length, bytes, e.ClientId);
+                                HandleReceivedData(bytes.Length, bytes, t.ClientId);
                             }
                             break;
                         case MesssageType.Close:
@@ -711,24 +769,23 @@ namespace Gurux.MQTT
                 {
                     m_OnTrace?.Invoke(this, new TraceEventArgs(TraceTypes.Info, "Unknown reply. " + msg, msg.sender));
                 }
-            };
-            mqttClient.Connected += (s, e) =>
+            });
+            mqttClient.UseConnectedHandler(t =>
             {
                 // Subscribe to a topic
                 mqttClient.SubscribeAsync(new TopicFilterBuilder().WithTopic(clientId).Build()).Wait();
                 m_OnMediaStateChange?.Invoke(this, new MediaStateEventArgs(MediaState.Opening));
-                GXMessage msg = new GXMessage() { id = MessageId, type = (int) MesssageType.Open, sender = clientId };
+                GXMessage msg = new GXMessage() { id = MessageId, type = (int)MesssageType.Open, sender = clientId };
                 PublishMessage(msg);
-            };
-            mqttClient.Disconnected += (s, e) =>
+            });
+            mqttClient.UseDisconnectedHandler(t =>
             {
                 m_OnMediaStateChange?.Invoke(this, new MediaStateEventArgs(MediaState.Closed));
                 replyReceivedEvent.Set();
-            };
+            });
             try
             {
                 replyReceivedEvent.Reset();
-                mqttClient.ConnectAsync(options).Wait();
                 if (AsyncWaitTime == 0)
                 {
                     mqttClient.ConnectAsync(options).Wait();
@@ -780,7 +837,7 @@ namespace Gurux.MQTT
             if (tmp != null)
             {
                 BytesSent += (ulong)tmp.Length;
-                GXMessage msg = new GXMessage() { id = MessageId, type = (int) MesssageType.Send, sender = clientId, frame = Common.GXCommon.ToHex(tmp) };
+                GXMessage msg = new GXMessage() { id = MessageId, type = (int)MesssageType.Send, sender = clientId, frame = Common.GXCommon.ToHex(tmp) };
                 PublishMessage(msg);
             }
         }
