@@ -165,6 +165,7 @@ namespace Gurux.MQTT
             this.TopicTb.Text = target.Topic;
             this.PortTB.Text = target.Port.ToString();
             this.IPAddressTB.Text = target.ServerAddress;
+            this.ClientIdTb.Text = target.ClientId;
             //Hide controls which user do not want to show.
             HostPanel.Enabled = (target.ConfigurableSettings & AvailableMediaSettings.Host) != 0;
             PortPanel.Enabled = (target.ConfigurableSettings & AvailableMediaSettings.Port) != 0;
@@ -177,6 +178,7 @@ namespace Gurux.MQTT
             target.Port = Convert.ToInt32(this.PortTB.Text);
             target.ServerAddress = this.IPAddressTB.Text;
             target.Topic = this.TopicTb.Text;
+            target.ClientId  = this.ClientIdTb.Text;
             Dirty = false;
         }
 
