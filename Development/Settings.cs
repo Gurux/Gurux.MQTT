@@ -170,6 +170,7 @@ namespace Gurux.MQTT
             HostPanel.Enabled = (target.ConfigurableSettings & AvailableMediaSettings.Host) != 0;
             PortPanel.Enabled = (target.ConfigurableSettings & AvailableMediaSettings.Port) != 0;
             TopicPanel.Enabled = (target.ConfigurableSettings & AvailableMediaSettings.Topic) != 0;
+            ClientIdPanel.Enabled = false;
             Dirty = false;
         }
 
