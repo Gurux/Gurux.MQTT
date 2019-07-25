@@ -613,7 +613,7 @@ namespace Gurux.MQTT
             MqttApplicationMessage message = new MqttApplicationMessageBuilder()
             .WithTopic(topic)
             .WithPayload(str)
-            .WithExactlyOnceQoS()
+            .WithAtMostOnceQoS()
             .Build();
             mqttClient.PublishAsync(message).Wait();
         }
@@ -773,7 +773,7 @@ namespace Gurux.MQTT
             mqttClient.UseConnectedHandler(t =>
             {
                 // Subscribe to a topic
-                mqttClient.SubscribeAsync(new TopicFilterBuilder().WithTopic(clientId).Build()).Wait();
+                mqttClient.SubscribeAsync(new TopicFilterBuilder().WithTopic(clientId).WithAtMostOnceQoS().Build()).Wait();
                 m_OnMediaStateChange?.Invoke(this, new MediaStateEventArgs(MediaState.Opening));
                 GXMessage msg = new GXMessage() { id = MessageId, type = (int)MesssageType.Open, sender = clientId };
                 PublishMessage(msg);
@@ -829,6 +829,11 @@ namespace Gurux.MQTT
         public void ResetByteCounters()
         {
             BytesSent = BytesReceived = 0;
+        }
+
+        public void Send(object data)
+        {
+            (this as IGXMedia).Send(data, null);
         }
 
         void IGXMedia.Send(object data, string receiver)
