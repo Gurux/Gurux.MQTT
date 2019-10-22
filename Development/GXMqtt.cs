@@ -613,7 +613,7 @@ namespace Gurux.MQTT
             MqttApplicationMessage message = new MqttApplicationMessageBuilder()
             .WithTopic(topic)
             .WithPayload(str)
-            .WithAtMostOnceQoS()
+            .WithExactlyOnceQoS()
             .Build();
             mqttClient.PublishAsync(message).Wait();
         }
@@ -640,7 +640,10 @@ namespace Gurux.MQTT
                 {
                     replyReceivedEvent.WaitOne((int)AsyncWaitTime * 1000);
                 }
-                mqttClient.DisconnectAsync().Wait();
+                if (mqttClient != null)
+                {
+                    mqttClient.DisconnectAsync().Wait();
+                }
                 mqttClient = null;
                 if (lastException != null)
                 {
@@ -773,7 +776,7 @@ namespace Gurux.MQTT
             mqttClient.UseConnectedHandler(t =>
             {
                 // Subscribe to a topic
-                mqttClient.SubscribeAsync(new TopicFilterBuilder().WithTopic(clientId).WithAtMostOnceQoS().Build()).Wait();
+                mqttClient.SubscribeAsync(new TopicFilterBuilder().WithTopic(clientId).WithExactlyOnceQoS().Build()).Wait();
                 m_OnMediaStateChange?.Invoke(this, new MediaStateEventArgs(MediaState.Opening));
                 GXMessage msg = new GXMessage() { id = MessageId, type = (int)MesssageType.Open, sender = clientId };
                 PublishMessage(msg);
@@ -804,7 +807,17 @@ namespace Gurux.MQTT
                 mqttClient = null;
                 throw ex.InnerException;
             }
-            replyReceivedEvent.WaitOne();
+            if (AsyncWaitTime == 0)
+            {
+                replyReceivedEvent.WaitOne();
+            }
+            else
+            {
+                if (!replyReceivedEvent.WaitOne((int)AsyncWaitTime * 1000))
+                {
+                    throw new TimeoutException("Invalid topic '" + topic + "'.");
+                }
+            }
             if (lastException != null)
             {
                 throw new Exception(lastException);
@@ -857,7 +870,7 @@ namespace Gurux.MQTT
         {
             get
             {
-                return null;
+                return replyReceivedEvent;
             }
         }
 
