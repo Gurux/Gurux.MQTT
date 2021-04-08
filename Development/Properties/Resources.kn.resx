@@ -118,45 +118,45 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="BrokerTxt" xml:space="preserve">
-    <value>Broker</value>
+    <value>ಬ್ರೋಕರ್</value>
   </data>
   <data name="Cancel" xml:space="preserve">
-    <value>Cancel</value>
+    <value>ರದ್ದುಮಾಡಿ</value>
   </data>
   <data name="ClientSettings" xml:space="preserve">
-    <value>Client Settings:</value>
+    <value>ಗ್ರಾಹಕ ಸೆಟ್ಟಿಂಗ್‌ಗಳು:</value>
   </data>
   <data name="InvalidBrokerName" xml:space="preserve">
-    <value>Invalid broker address.</value>
+    <value>ಅಮಾನ್ಯ ಬ್ರೋಕರ್ ವಿಳಾಸ.</value>
   </data>
   <data name="InvalidBrokerPort" xml:space="preserve">
-    <value>Invalid broker port.</value>
+    <value>ಅಮಾನ್ಯ ಬ್ರೋಕರ್ ಪೋರ್ಟ್.</value>
   </data>
   <data name="InvalidClient" xml:space="preserve">
-    <value>Invalid client.</value>
+    <value>ಅಮಾನ್ಯ ಕ್ಲೈಂಟ್.</value>
   </data>
   <data name="InvalidConnection" xml:space="preserve">
-    <value>Invalid connection.</value>
+    <value>ಅಮಾನ್ಯ ಸಂಪರ್ಕ.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
-    <value>Invalid topic.</value>
+    <value>ಅಮಾನ್ಯ ವಿಷಯ.</value>
   </data>
   <data name="OK" xml:space="preserve">
-    <value>OK</value>
+    <value>ಸರಿ</value>
   </data>
   <data name="PortTxt" xml:space="preserve">
-    <value>Port:</value>
+    <value>ಬಂದರು:</value>
   </data>
   <data name="SettingsTxt" xml:space="preserve">
-    <value>MQTT Settings</value>
+    <value>MQTT ಸೆಟ್ಟಿಂಗ್‌ಗಳು</value>
   </data>
   <data name="TopicTxt" xml:space="preserve">
-    <value>Topic</value>
+    <value>ವಿಷಯ</value>
   </data>
   <data name="UnknownReply" xml:space="preserve">
-    <value>Unknown Reply</value>
+    <value>ಅಜ್ಞಾತ ಉತ್ತರ</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
-    <value>Media is closed.</value>
+    <value>ಮಾಧ್ಯಮವನ್ನು ಮುಚ್ಚಲಾಗಿದೆ.</value>
   </data>
 </root>

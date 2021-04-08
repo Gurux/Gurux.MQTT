@@ -321,7 +321,7 @@ namespace Gurux.MQTT
             }
         }
 
-#if !NETCOREAPP2_0 && !NETCOREAPP2_1 && !NETSTANDARD2_0
+#if !NETCOREAPP2_0 && !NETCOREAPP2_1 && !NETSTANDARD2_0 && !NETCOREAPP3_1
         /// <summary>
         /// Shows MQTT Properties dialog.
         /// </summary>
@@ -332,7 +332,8 @@ namespace Gurux.MQTT
         /// <seealso href="PropertiesDialog.html">Properties Dialog</seealso>
         public bool Properties(System.Windows.Forms.Form parent)
         {
-            return new Gurux.Shared.PropertiesForm(PropertiesForm, Resources.SettingsTxt, IsOpen).ShowDialog(parent) == System.Windows.Forms.DialogResult.OK;
+            return new PropertiesForm(PropertiesForm, Resources.SettingsTxt, IsOpen, Resources.OK, Resources.Cancel,
+                "https://www.gurux.fi/GXMQTTProperties").ShowDialog(parent) == System.Windows.Forms.DialogResult.OK;
         }
 
         /// <inheritdoc cref="IGXMedia.PropertiesForm"/>
@@ -343,7 +344,7 @@ namespace Gurux.MQTT
                 return new Settings(this);
             }
         }
-#endif //!NETCOREAPP2_0 && !NETCOREAPP2_1 && !NETSTANDARD2_0
+#endif //!NETCOREAPP2_0 && !NETCOREAPP2_1 && !NETSTANDARD2_0 && !NETCOREAPP3_1
 
         private void NotifyPropertyChanged(string info)
         {
@@ -770,13 +771,13 @@ namespace Gurux.MQTT
                 }
                 else
                 {
-                    m_OnTrace?.Invoke(this, new TraceEventArgs(TraceTypes.Info, "Unknown reply. " + msg, msg.sender));
+                    m_OnTrace?.Invoke(this, new TraceEventArgs(TraceTypes.Info, Resources.UnknownReply + msg, msg.sender));
                 }
             });
             mqttClient.UseConnectedHandler(t =>
             {
                 // Subscribe to a topic
-                mqttClient.SubscribeAsync(new TopicFilterBuilder().WithTopic(clientId).WithExactlyOnceQoS().Build()).Wait();
+                mqttClient.SubscribeAsync(new MqttTopicFilterBuilder().WithTopic(clientId).WithExactlyOnceQoS().Build()).Wait();
                 m_OnMediaStateChange?.Invoke(this, new MediaStateEventArgs(MediaState.Opening));
                 GXMessage msg = new GXMessage() { id = MessageId, type = (int)MesssageType.Open, sender = clientId };
                 PublishMessage(msg);
@@ -815,7 +816,7 @@ namespace Gurux.MQTT
             {
                 if (!replyReceivedEvent.WaitOne((int)AsyncWaitTime * 1000))
                 {
-                    throw new TimeoutException("Invalid topic '" + topic + "'.");
+                    throw new TimeoutException(Resources.InvalidTopic + "'" + topic + "'.");
                 }
             }
             if (lastException != null)
@@ -829,7 +830,7 @@ namespace Gurux.MQTT
         {
             if (!IsOpen)
             {
-                throw new InvalidOperationException("Media is closed.");
+                throw new InvalidOperationException(Resources.MediaIsClosed);
             }
             return syncBase.Receive(args);
         }

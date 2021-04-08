@@ -118,45 +118,45 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="BrokerTxt" xml:space="preserve">
-    <value>Broker</value>
+    <value>Corretor</value>
   </data>
   <data name="Cancel" xml:space="preserve">
-    <value>Cancel</value>
+    <value>Cancelar</value>
   </data>
   <data name="ClientSettings" xml:space="preserve">
-    <value>Client Settings:</value>
+    <value>Configurações do cliente:</value>
   </data>
   <data name="InvalidBrokerName" xml:space="preserve">
-    <value>Invalid broker address.</value>
+    <value>Endereço de corretor inválido.</value>
   </data>
   <data name="InvalidBrokerPort" xml:space="preserve">
-    <value>Invalid broker port.</value>
+    <value>Porta de corretor inválida.</value>
   </data>
   <data name="InvalidClient" xml:space="preserve">
-    <value>Invalid client.</value>
+    <value>Cliente inválido.</value>
   </data>
   <data name="InvalidConnection" xml:space="preserve">
-    <value>Invalid connection.</value>
+    <value>Conexão inválida.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
-    <value>Invalid topic.</value>
+    <value>Tópico inválido.</value>
   </data>
   <data name="OK" xml:space="preserve">
-    <value>OK</value>
+    <value>Está bem</value>
   </data>
   <data name="PortTxt" xml:space="preserve">
-    <value>Port:</value>
+    <value>Porta:</value>
   </data>
   <data name="SettingsTxt" xml:space="preserve">
-    <value>MQTT Settings</value>
+    <value>Configurações MQTT</value>
   </data>
   <data name="TopicTxt" xml:space="preserve">
-    <value>Topic</value>
+    <value>Tema</value>
   </data>
   <data name="UnknownReply" xml:space="preserve">
-    <value>Unknown Reply</value>
+    <value>Resposta Desconhecida</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
-    <value>Media is closed.</value>
+    <value>A mídia está fechada.</value>
   </data>
 </root>

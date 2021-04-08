@@ -118,45 +118,45 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="BrokerTxt" xml:space="preserve">
-    <value>Broker</value>
+    <value>Брокер</value>
   </data>
   <data name="Cancel" xml:space="preserve">
-    <value>Cancel</value>
+    <value>Поништити, отказати</value>
   </data>
   <data name="ClientSettings" xml:space="preserve">
-    <value>Client Settings:</value>
+    <value>Подешавања клијента:</value>
   </data>
   <data name="InvalidBrokerName" xml:space="preserve">
-    <value>Invalid broker address.</value>
+    <value>Неважећа адреса посредника.</value>
   </data>
   <data name="InvalidBrokerPort" xml:space="preserve">
-    <value>Invalid broker port.</value>
+    <value>Неисправан порт посредника.</value>
   </data>
   <data name="InvalidClient" xml:space="preserve">
-    <value>Invalid client.</value>
+    <value>Неважећи клијент.</value>
   </data>
   <data name="InvalidConnection" xml:space="preserve">
-    <value>Invalid connection.</value>
+    <value>Неважећа веза.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
-    <value>Invalid topic.</value>
+    <value>Неважећа тема.</value>
   </data>
   <data name="OK" xml:space="preserve">
-    <value>OK</value>
+    <value>ок</value>
   </data>
   <data name="PortTxt" xml:space="preserve">
-    <value>Port:</value>
+    <value>Лука:</value>
   </data>
   <data name="SettingsTxt" xml:space="preserve">
-    <value>MQTT Settings</value>
+    <value>МКТТ подешавања</value>
   </data>
   <data name="TopicTxt" xml:space="preserve">
-    <value>Topic</value>
+    <value>Тема</value>
   </data>
   <data name="UnknownReply" xml:space="preserve">
-    <value>Unknown Reply</value>
+    <value>Непознати одговор</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
-    <value>Media is closed.</value>
+    <value>Медији су затворени.</value>
   </data>
 </root>

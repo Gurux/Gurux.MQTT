@@ -211,10 +211,10 @@ namespace Gurux.Broker
                     Console.WriteLine("--- Connected with the server. " + t.AuthenticateResult.IsSessionPresent);
                 }
                 // Subscribe to a topic
-                List<TopicFilter> topics = new List<TopicFilter>();
+                List<MqttTopicFilter> topics = new List<MqttTopicFilter>();
                 foreach (Media it in connection.Connections)
                 {
-                    topics.Add(new TopicFilterBuilder().WithTopic(it.Name).Build());
+                    topics.Add(new MqttTopicFilterBuilder().WithTopic(it.Name).Build());
                 }
                 mqttClient.SubscribeAsync(topics.ToArray());
                 if (trace > TraceLevel.Warning)

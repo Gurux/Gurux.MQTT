@@ -118,45 +118,45 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="BrokerTxt" xml:space="preserve">
-    <value>Broker</value>
+    <value>Μεσίτης</value>
   </data>
   <data name="Cancel" xml:space="preserve">
-    <value>Cancel</value>
+    <value>Ματαίωση</value>
   </data>
   <data name="ClientSettings" xml:space="preserve">
-    <value>Client Settings:</value>
+    <value>Ρυθμίσεις πελάτη:</value>
   </data>
   <data name="InvalidBrokerName" xml:space="preserve">
-    <value>Invalid broker address.</value>
+    <value>Μη έγκυρη διεύθυνση μεσίτη.</value>
   </data>
   <data name="InvalidBrokerPort" xml:space="preserve">
-    <value>Invalid broker port.</value>
+    <value>Μη έγκυρη θύρα μεσίτη.</value>
   </data>
   <data name="InvalidClient" xml:space="preserve">
-    <value>Invalid client.</value>
+    <value>Μη έγκυρος πελάτης.</value>
   </data>
   <data name="InvalidConnection" xml:space="preserve">
-    <value>Invalid connection.</value>
+    <value>Μη έγκυρη σύνδεση.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
-    <value>Invalid topic.</value>
+    <value>Μη έγκυρο θέμα.</value>
   </data>
   <data name="OK" xml:space="preserve">
-    <value>OK</value>
+    <value>Εντάξει</value>
   </data>
   <data name="PortTxt" xml:space="preserve">
-    <value>Port:</value>
+    <value>Λιμάνι:</value>
   </data>
   <data name="SettingsTxt" xml:space="preserve">
-    <value>MQTT Settings</value>
+    <value>Ρυθμίσεις MQTT</value>
   </data>
   <data name="TopicTxt" xml:space="preserve">
-    <value>Topic</value>
+    <value>Θέμα</value>
   </data>
   <data name="UnknownReply" xml:space="preserve">
-    <value>Unknown Reply</value>
+    <value>Άγνωστη απάντηση</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
-    <value>Media is closed.</value>
+    <value>Τα μέσα είναι κλειστά.</value>
   </data>
 </root>

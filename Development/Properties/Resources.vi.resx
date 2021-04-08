@@ -118,45 +118,45 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="BrokerTxt" xml:space="preserve">
-    <value>Broker</value>
+    <value>Người môi giới</value>
   </data>
   <data name="Cancel" xml:space="preserve">
-    <value>Cancel</value>
+    <value>Huỷ bỏ</value>
   </data>
   <data name="ClientSettings" xml:space="preserve">
-    <value>Client Settings:</value>
+    <value>Cài đặt Máy khách:</value>
   </data>
   <data name="InvalidBrokerName" xml:space="preserve">
-    <value>Invalid broker address.</value>
+    <value>Địa chỉ người môi giới không hợp lệ.</value>
   </data>
   <data name="InvalidBrokerPort" xml:space="preserve">
-    <value>Invalid broker port.</value>
+    <value>Cổng người môi giới không hợp lệ.</value>
   </data>
   <data name="InvalidClient" xml:space="preserve">
-    <value>Invalid client.</value>
+    <value>Khách hàng không hợp lệ.</value>
   </data>
   <data name="InvalidConnection" xml:space="preserve">
-    <value>Invalid connection.</value>
+    <value>Kết nối không hợp lệ.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
-    <value>Invalid topic.</value>
+    <value>Chủ đề không hợp lệ.</value>
   </data>
   <data name="OK" xml:space="preserve">
-    <value>OK</value>
+    <value>đồng ý</value>
   </data>
   <data name="PortTxt" xml:space="preserve">
-    <value>Port:</value>
+    <value>Hải cảng:</value>
   </data>
   <data name="SettingsTxt" xml:space="preserve">
-    <value>MQTT Settings</value>
+    <value>Cài đặt MQTT</value>
   </data>
   <data name="TopicTxt" xml:space="preserve">
-    <value>Topic</value>
+    <value>Đề tài</value>
   </data>
   <data name="UnknownReply" xml:space="preserve">
-    <value>Unknown Reply</value>
+    <value>Trả lời không xác định</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
-    <value>Media is closed.</value>
+    <value>Phương tiện đã bị đóng.</value>
   </data>
 </root>

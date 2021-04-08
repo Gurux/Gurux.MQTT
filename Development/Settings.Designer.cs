@@ -1,4 +1,4 @@
-﻿#if !NETCOREAPP2_0 && !NETCOREAPP2_1 && !NETSTANDARD2_0
+﻿
 namespace Gurux.MQTT
 {
     partial class Settings
@@ -210,4 +210,3 @@ namespace Gurux.MQTT
         private System.Windows.Forms.TextBox ClientIdTb;
     }
 }
-#endif //!NETCOREAPP2_0 && !NETCOREAPP2_1 && !NETSTANDARD2_0

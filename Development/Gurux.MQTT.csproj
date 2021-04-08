@@ -4,47 +4,54 @@
     <AssemblyName>Gurux.MQTT</AssemblyName>
     <Company>Gurux Ltd</Company>
     <Authors>Gurux Ltd</Authors>
-    <Copyright>Copyright (c) 1998-2020 Gurux Ltd. All rights reserved.</Copyright>
+    <Copyright>Copyright (c) 1998-2021 Gurux Ltd. All rights reserved.</Copyright>
     <PackageProjectUrl>www.gurux.fi/index.php?q=GXMedia</PackageProjectUrl>
     <PackageLicenseUrl></PackageLicenseUrl>
     <Description>MQTT media component</Description>
     <Version Condition=" '$(BUILD_BUILDNUMBER)' == '' ">0.0.1-local</Version>
     <Version Condition=" '$(BUILD_BUILDNUMBER)' != '' ">$(BUILD_BUILDNUMBER)</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <TargetFrameworks>net46;net452;netcoreapp2.1;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>net46;netcoreapp3.1</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/gurux/gurux.mqtt</RepositoryUrl>
     <PackageTags>Gurux Device Framework MQTT</PackageTags>
     <PackageId>Gurux.MQTT</PackageId>
     <ApplicationIcon>mqtt.ico</ApplicationIcon>
-    <PackageIconUrl>http://www.gurux.org/gurux.ico</PackageIconUrl>
     <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
   </PropertyGroup>
    <PropertyGroup>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
- <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net46' or '$(TargetFramework)' == 'net45' or '$(TargetFramework)' == 'net40' or '$(TargetFramework)' == 'net35'">
    <Compile Update="Properties\Resources.Designer.cs">
      <DesignTime>True</DesignTime>
      <AutoGen>True</AutoGen>
      <DependentUpon>Resources.resx</DependentUpon>
    </Compile>
+   <Compile Update="Settings.cs" />
+   <Compile Update="Settings.Designer.cs">
+   <DependentUpon>Settings.cs</DependentUpon>
+   </Compile>
  </ItemGroup>
- <ItemGroup>
-   <EmbeddedResource Update="Properties\Resources.resx">
-     <Generator>ResXFileCodeGenerator</Generator>
-     <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-   </EmbeddedResource>
- </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' or '$(TargetFramework)' == 'netcoreapp2.1' or '$(TargetFramework)' == 'netcoreapp2.0' or '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netstandard2.1'">
+     <Compile Remove="Settings.cs" />
+     <Compile Remove="Settings.Designer.cs" />
+     <Compile Remove="Shared\PropertiesForm.cs" />
+     <Compile Remove="Shared\PropertiesForm.Designer.cs" />
+  </ItemGroup>
  <ItemGroup>
     <PackageReference Include="Gurux.Common" Version="8.1.2002.1903" />
-    <PackageReference Include="MQTTnet" Version="3.0.8" />
+    <PackageReference Include="NETStandard.Library" Version="2.0.3" />
+    <PackageReference Include="MQTTnet" Version="3.0.15" />
  </ItemGroup>
  
   <ItemGroup Condition="'$(TargetFramework)' == 'net452' or '$(TargetFramework)' == 'net46' ">
     <Reference Include="System.Data.Linq" />
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
-
+  <ItemGroup>
+    <None Include="..\gurux_mqtt.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
 </Project>

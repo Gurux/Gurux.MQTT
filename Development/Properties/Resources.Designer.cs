@@ -70,6 +70,15 @@ namespace Gurux.MQTT.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        internal static string Cancel {
+            get {
+                return ResourceManager.GetString("Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Client Settings:.
         /// </summary>
         internal static string ClientSettings {
@@ -124,6 +133,15 @@ namespace Gurux.MQTT.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to OK.
+        /// </summary>
+        internal static string OK {
+            get {
+                return ResourceManager.GetString("OK", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Port:.
         /// </summary>
         internal static string PortTxt {
@@ -147,6 +165,28 @@ namespace Gurux.MQTT.Properties {
         internal static string TopicTxt {
             get {
                 return ResourceManager.GetString("TopicTxt", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to UnknownReply.
+        /// </summary>
+        internal static string UnknownReply
+        {
+            get
+            {
+                return ResourceManager.GetString("UnknownReply", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to UnknownReply.
+        /// </summary>
+        internal static string MediaIsClosed
+        {
+            get
+            {
+                return ResourceManager.GetString("MediaIsClosed", resourceCulture);
             }
         }
     }

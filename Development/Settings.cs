@@ -29,12 +29,8 @@
 // This code is licensed under the GNU General Public License v2.
 // Full text may be retrieved at http://www.gnu.org/licenses/gpl-2.0.txt
 //---------------------------------------------------------------------------
-#if !NETCOREAPP2_0 && !NETCOREAPP2_1 && !NETSTANDARD2_0
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using System.Linq;
 using System.Reflection;
 using Gurux.Common;
 using System.Windows.Forms;
@@ -223,4 +219,3 @@ namespace Gurux.MQTT
 
     }
 }
-#endif //!NETCOREAPP2_0 && !NETCOREAPP2_1 && !NETSTANDARD2_0
