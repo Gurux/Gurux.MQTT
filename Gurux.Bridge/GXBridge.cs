@@ -36,7 +36,8 @@ using Gurux.Net;
 using Gurux.Serial;
 using MQTTnet;
 using MQTTnet.Client;
-using MQTTnet.Client.Options;
+using MQTTnet.Packets;
+using MQTTnet.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -60,7 +61,12 @@ namespace Gurux.Broker
             }
         }
 
-        public static void Start(TraceLevel trace, string server, int port, Connection connection)
+        public static async void Start(
+            TraceLevel trace,
+            string server,
+            int port,
+            Connection connection,
+            CancellationToken cancellationToken)
         {
             // Create a new MQTT client.
             var mqttClient = factory.CreateMqttClient();
@@ -105,9 +111,9 @@ namespace Gurux.Broker
                             var message = new MqttApplicationMessageBuilder()
                             .WithTopic(it2.Message.sender)
                             .WithPayload(str)
-                            .WithExactlyOnceQoS()
+                            .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.ExactlyOnce)
                             .Build();
-                            mqttClient.PublishAsync(message);
+                            mqttClient.PublishAsync(message, cancellationToken);
                             break;
                         }
                     }
@@ -119,7 +125,7 @@ namespace Gurux.Broker
             .WithTcpServer(server, port)
             .WithClientId(connection.Name)
             .Build();
-            mqttClient.UseApplicationMessageReceivedHandler(t =>
+            mqttClient.ApplicationMessageReceivedAsync += async t =>
             {
                 string str = ASCIIEncoding.ASCII.GetString(t.ApplicationMessage.Payload);
                 GXJsonParser parser = new GXJsonParser();
@@ -128,6 +134,7 @@ namespace Gurux.Broker
                 {
                     Console.WriteLine("---Received message");
                     Console.WriteLine($"+ Topic = {t.ApplicationMessage.Topic}");
+                    Console.WriteLine($"+ Type = {(MesssageType)msg.type}");
                     Console.WriteLine($"+ Payload = {msg.frame}");
                     Console.WriteLine($"+ QoS = {t.ApplicationMessage.QualityOfServiceLevel}");
                     Console.WriteLine($"+ Retain = {t.ApplicationMessage.Retain}");
@@ -169,9 +176,9 @@ namespace Gurux.Broker
                                     message = new MqttApplicationMessageBuilder()
                                     .WithTopic(msg.sender)
                                     .WithPayload(str)
-                                    .WithExactlyOnceQoS()
+                                    .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.ExactlyOnce)
                                     .Build();
-                                    mqttClient.PublishAsync(message);
+                                    await mqttClient.PublishAsync(message, cancellationToken);
                                     break;
                                 case MesssageType.Send:
                                     it.Target.Send(GXCommon.HexToBytes(msg.frame), null);
@@ -183,9 +190,9 @@ namespace Gurux.Broker
                                     message = new MqttApplicationMessageBuilder()
                                     .WithTopic(msg.sender)
                                     .WithPayload(str)
-                                    .WithExactlyOnceQoS()
+                                    .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.ExactlyOnce)
                                     .Build();
-                                    mqttClient.PublishAsync(message);
+                                    await mqttClient.PublishAsync(message, cancellationToken);
                                     break;
                             }
                         }
@@ -196,33 +203,38 @@ namespace Gurux.Broker
                             message = new MqttApplicationMessageBuilder()
                             .WithTopic(msg.sender)
                             .WithPayload(str)
-                            .WithExactlyOnceQoS()
+                            .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.ExactlyOnce)
                             .Build();
-                            mqttClient.PublishAsync(message);
+                            await mqttClient.PublishAsync(message, cancellationToken);
                         }
                         break;
                     }
                 }
-            });
-            mqttClient.UseConnectedHandler(t =>
+            };
+            mqttClient.ConnectedAsync += async t =>
             {
                 if (trace > TraceLevel.Warning)
                 {
-                    Console.WriteLine("--- Connected with the server. " + t.AuthenticateResult.IsSessionPresent);
+                    Console.WriteLine("--- Connected with the server. " + t.ConnectResult.IsSessionPresent);
                 }
-                // Subscribe to a topic
-                List<MqttTopicFilter> topics = new List<MqttTopicFilter>();
+                // Subscribe to a topic(s)
                 foreach (Media it in connection.Connections)
                 {
-                    topics.Add(new MqttTopicFilterBuilder().WithTopic(it.Name).Build());
+                    var mqttSubscribeOptions = factory.CreateSubscribeOptionsBuilder()
+                .WithTopicFilter(
+                    f =>
+                    {
+                        f.WithTopic(it.Name);
+                    })
+                .Build();
+                    await mqttClient.SubscribeAsync(mqttSubscribeOptions, cancellationToken);
+                    if (trace > TraceLevel.Warning)
+                    {
+                        Console.WriteLine("--- {0} Subscribed. ", it.Name);
+                    }
                 }
-                mqttClient.SubscribeAsync(topics.ToArray());
-                if (trace > TraceLevel.Warning)
-                {
-                    Console.WriteLine("--- Subscribed. ");
-                }
-            });
-            mqttClient.UseDisconnectedHandler(t =>
+            };
+            mqttClient.DisconnectedAsync += async t =>
            {
                Console.WriteLine("--- Disconnected from the server. " + t.Exception);
                //Try to re-connect.
@@ -235,7 +247,7 @@ namespace Gurux.Broker
                            it.Target.Close();
                        }
                        Console.WriteLine("--- Try to reconnect to the server.");
-                       mqttClient.ConnectAsync(options).Wait(10000);
+                       await mqttClient.ConnectAsync(options, cancellationToken);
                        Console.WriteLine("--- Connected with the server. ");
                        break;
                    }
@@ -244,8 +256,8 @@ namespace Gurux.Broker
                        Console.WriteLine("--- Failed to reconnect to the server. " + ex.Message);
                    }
                }
-           });
-            mqttClient.ConnectAsync(options).Wait();
+           };
+            await mqttClient.ConnectAsync(options, cancellationToken);
         }
 
         private static void InitializeIEC(TraceLevel trace, Media media)

@@ -35,6 +35,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 
 namespace Gurux.Broker
 {
@@ -109,7 +110,8 @@ namespace Gurux.Broker
                     throw new Exception("Broker port is missing. Example -p 1883");
                 }
                 Console.WriteLine("Connecting to the Broker in address: {0}:{1} ", host, port);
-                GXMeter.Start(trace, host, port, settings);
+                var cts = new CancellationTokenSource();
+                GXMeter.Start(trace, host, port, settings, cts.Token);
                 Console.WriteLine("Press Esc to close application or delete clear the console.");
                 ConsoleKey k;
                 while ((k = Console.ReadKey().Key) != ConsoleKey.Escape)
@@ -121,6 +123,7 @@ namespace Gurux.Broker
                     }
                     Console.WriteLine("Press Esc to close application or delete clear the console.");
                 }
+                cts.Cancel();
             }
             catch (AggregateException ex)
             {

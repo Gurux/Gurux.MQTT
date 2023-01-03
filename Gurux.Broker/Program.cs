@@ -36,13 +36,14 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Gurux.Broker
 {
     class Program
     {
-        static int Main(string[] args)
+        static async Task<int> Main(string[] args)
         {
             try
             {
@@ -78,7 +79,7 @@ namespace Gurux.Broker
                     throw new Exception("Broker port is missing. Example -p 1883");
                 }
                 Console.WriteLine("Broker started in port {0}.", port);
-                Run(trace, port).Wait();
+                MqttServer mqttServer = await Run(trace, port);
                 ConsoleKey k;
                 while ((k = Console.ReadKey().Key) != ConsoleKey.Escape)
                 {
@@ -88,6 +89,7 @@ namespace Gurux.Broker
                     }
                     Console.WriteLine("Press Esc to close Broker or delete clear the console.");
                 }
+                await mqttServer.StopAsync();
             }
             catch (Exception ex)
             {
@@ -108,26 +110,30 @@ namespace Gurux.Broker
             Console.WriteLine("Gurux.Broker -p 1883");
         }
 
-        static async Task Run(TraceLevel trace, int port)
+        static async Task<MqttServer> Run(TraceLevel trace, int port)
         {
             var optionsBuilder = new MqttServerOptionsBuilder()
-                .WithConnectionBacklog(100)
-                .WithDefaultEndpointPort(port);
+            .WithConnectionBacklog(100)
+            .WithDefaultEndpointPort(port)
+            .Build();
+            optionsBuilder.DefaultEndpointOptions.IsEnabled = true;
+//            var optionsBuilder = new MqttServerOptionsBuilder().WithDefaultEndpointPort(port).Build();
 
-            var mqttServer = new MqttFactory().CreateMqttServer();
-            await mqttServer.StartAsync(optionsBuilder.Build());
-            mqttServer.UseApplicationMessageReceivedHandler(t =>
+            var mqttServer = new MqttFactory().CreateMqttServer(optionsBuilder);
+            mqttServer.InterceptingPublishAsync += async args =>
             {
-                if (t.ClientId != null)
+                if (args.ClientId != null)
                 {
                     if (trace == TraceLevel.Verbose)
                     {
                         Console.WriteLine("### Received message ###");
-                        Console.WriteLine($"+ Topic = {t.ApplicationMessage.Topic}");
-                        Console.WriteLine($"+ Payload = {Encoding.UTF8.GetString(t.ApplicationMessage.Payload)}");
+                        Console.WriteLine($"+ Topic = {args.ApplicationMessage.Topic}");
+                        Console.WriteLine($"+ Payload = {Encoding.UTF8.GetString(args.ApplicationMessage.Payload)}");
                     }
                 }
-            });
+            };
+            await mqttServer.StartAsync();
+            return mqttServer;
         }
     }
 }

@@ -136,7 +136,7 @@
     <value>Klien tidak valid.</value>
   </data>
   <data name="InvalidConnection" xml:space="preserve">
-    <value>Koneksi tidak valid</value>
+    <value>Koneksi tidak valid.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>Topik tidak valid.</value>

@@ -154,7 +154,7 @@
     <value>Aihe</value>
   </data>
   <data name="UnknownReply" xml:space="preserve">
-    <value>Tuntematon vastaus.</value>
+    <value>Tuntematon vastaus</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>Media on suljettu.</value>

@@ -36,7 +36,7 @@ using Gurux.MQTT.Properties;
 using Gurux.Shared;
 using MQTTnet;
 using MQTTnet.Client;
-using MQTTnet.Client.Options;
+using MQTTnet.Protocol;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -300,12 +300,12 @@ namespace Gurux.MQTT
             set;
         }
 
-        /// <inheritdoc cref="IGXMedia.Tag"/>
+        /// <inheritdoc />
         object IGXMedia.Tag { get; set; }
 
         IGXMediaContainer IGXMedia.MediaContainer { get; set; }
 
-        /// <inheritdoc cref="IGXMedia.SyncRoot"/>
+        /// <inheritdoc />
         [Browsable(false), ReadOnly(true)]
         public object SyncRoot
         {
@@ -321,7 +321,7 @@ namespace Gurux.MQTT
             }
         }
 
-#if !NETCOREAPP2_0 && !NETCOREAPP2_1 && !NETSTANDARD2_0 && !NETCOREAPP3_1
+#if !NETCOREAPP2_0 && !NETCOREAPP2_1 && !NETSTANDARD2_0 && !NETCOREAPP3_1 && !NET6_0
         /// <summary>
         /// Shows MQTT Properties dialog.
         /// </summary>
@@ -461,6 +461,7 @@ namespace Gurux.MQTT
             }
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
@@ -588,7 +589,7 @@ namespace Gurux.MQTT
             }
         }
 
-        /// <inheritdoc cref="TraceEventHandler"/>
+        /// <inheritdoc />
         [Description("Called when the Media is sending or receiving data.")]
         public event TraceEventHandler OnTrace
         {
@@ -607,18 +608,19 @@ namespace Gurux.MQTT
         /// Publish message.
         /// </summary>
         /// <param name="msg"></param>
-        private void PublishMessage(GXMessage msg)
+        private async Task PublishMessageAsync(GXMessage msg)
         {
             GXJsonParser parser = new GXJsonParser();
             string str = parser.Serialize(msg);
             MqttApplicationMessage message = new MqttApplicationMessageBuilder()
             .WithTopic(topic)
             .WithPayload(str)
-            .WithExactlyOnceQoS()
+            .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.ExactlyOnce)
             .Build();
-            mqttClient.PublishAsync(message).Wait();
+            await mqttClient.PublishAsync(message);
         }
 
+        /// <inheritdoc />
         public void Close()
         {
             lastException = null;
@@ -627,7 +629,7 @@ namespace Gurux.MQTT
                 GXMessage msg = new GXMessage() { id = MessageId, type = (int)MesssageType.Close, sender = clientId };
                 try
                 {
-                    PublishMessage(msg);
+                    PublishMessageAsync(msg).Wait();
                 }
                 catch (Exception)
                 {
@@ -721,6 +723,7 @@ namespace Gurux.MQTT
             return bytes;
         }
 
+        /// <inheritdoc />
         public void Open()
         {
             Close();
@@ -736,7 +739,7 @@ namespace Gurux.MQTT
             var options = new MqttClientOptionsBuilder()
             .WithTcpServer(serverAddress, port).WithClientId(clientId)
             .Build();
-            mqttClient.UseApplicationMessageReceivedHandler(t =>
+            mqttClient.ApplicationMessageReceivedAsync += async t =>
             {
                 string str = ASCIIEncoding.ASCII.GetString(t.ApplicationMessage.Payload);
                 GXJsonParser parser = new GXJsonParser();
@@ -773,20 +776,20 @@ namespace Gurux.MQTT
                 {
                     m_OnTrace?.Invoke(this, new TraceEventArgs(TraceTypes.Info, Resources.UnknownReply + msg, msg.sender));
                 }
-            });
-            mqttClient.UseConnectedHandler(t =>
+            };
+            mqttClient.ConnectedAsync += async t =>
             {
                 // Subscribe to a topic
                 mqttClient.SubscribeAsync(new MqttTopicFilterBuilder().WithTopic(clientId).WithExactlyOnceQoS().Build()).Wait();
                 m_OnMediaStateChange?.Invoke(this, new MediaStateEventArgs(MediaState.Opening));
                 GXMessage msg = new GXMessage() { id = MessageId, type = (int)MesssageType.Open, sender = clientId };
-                PublishMessage(msg);
-            });
-            mqttClient.UseDisconnectedHandler(t =>
+                await PublishMessageAsync(msg);
+            };
+            mqttClient.DisconnectedAsync += async t =>
             {
                 m_OnMediaStateChange?.Invoke(this, new MediaStateEventArgs(MediaState.Closed));
                 replyReceivedEvent.Set();
-            });
+            };
             try
             {
                 replyReceivedEvent.Reset();
@@ -825,7 +828,7 @@ namespace Gurux.MQTT
             }
         }
 
-        /// <inheritdoc cref="IGXMedia.Receive"/>
+        /// <inheritdoc />
         public bool Receive<T>(ReceiveParameters<T> args)
         {
             if (!IsOpen)
@@ -845,6 +848,7 @@ namespace Gurux.MQTT
             BytesSent = BytesReceived = 0;
         }
 
+        /// <inheritdoc />
         public void Send(object data)
         {
             (this as IGXMedia).Send(data, null);
@@ -857,16 +861,18 @@ namespace Gurux.MQTT
             {
                 BytesSent += (ulong)tmp.Length;
                 GXMessage msg = new GXMessage() { id = MessageId, type = (int)MesssageType.Send, sender = clientId, frame = Common.GXCommon.ToHex(tmp) };
-                PublishMessage(msg);
+                PublishMessageAsync(msg).Wait();
             }
         }
 
+        /// <inheritdoc />
         public uint AsyncWaitTime
         {
             get;
             set;
         }
 
+        /// <inheritdoc />
         public EventWaitHandle AsyncWaitHandle
         {
             get

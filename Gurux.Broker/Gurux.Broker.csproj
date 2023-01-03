@@ -6,9 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Gurux.Common" Version="8.1.2109.2401" />
+    <PackageReference Include="Gurux.Common" Version="8.4.2212.501" />
      <PackageReference Include="NETStandard.Library" Version="2.0.3" />
-    <PackageReference Include="MQTTnet" Version="3.0.15" />
+    <PackageReference Include="MQTTnet" Version="4.1.4.563" />
   </ItemGroup>
 
   <ItemGroup>
