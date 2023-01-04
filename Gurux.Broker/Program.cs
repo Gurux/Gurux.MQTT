@@ -36,19 +36,19 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Gurux.Broker
 {
     class Program
     {
+        static TraceLevel trace = TraceLevel.Error;
+
         static async Task<int> Main(string[] args)
         {
             try
             {
                 int port = 1883;
-                TraceLevel trace = TraceLevel.Error;
                 List<GXCmdParameter> parameters = GXCommon.GetParameters(args, "p:t:");
                 foreach (GXCmdParameter it in parameters)
                 {
@@ -79,7 +79,7 @@ namespace Gurux.Broker
                     throw new Exception("Broker port is missing. Example -p 1883");
                 }
                 Console.WriteLine("Broker started in port {0}.", port);
-                MqttServer mqttServer = await Run(trace, port);
+                MqttServer mqttServer = await Run(port);
                 ConsoleKey k;
                 while ((k = Console.ReadKey().Key) != ConsoleKey.Escape)
                 {
@@ -110,7 +110,7 @@ namespace Gurux.Broker
             Console.WriteLine("Gurux.Broker -p 1883");
         }
 
-        static async Task<MqttServer> Run(TraceLevel trace, int port)
+        static async Task<MqttServer> Run(int port)
         {
             var optionsBuilder = new MqttServerOptionsBuilder()
             .WithConnectionBacklog(100)
@@ -130,8 +130,18 @@ namespace Gurux.Broker
                     }
                 }
             };
+            mqttServer.ClientConnectedAsync += OnClientConnectedAsync;
             await mqttServer.StartAsync();
             return mqttServer;
+        }
+
+        private static Task OnClientConnectedAsync(ClientConnectedEventArgs arg)
+        {
+            if (trace == TraceLevel.Verbose)
+            {
+                Console.WriteLine($"### {arg.ClientId} Connected ###");
+            }
+            return Task.CompletedTask;
         }
     }
 }
