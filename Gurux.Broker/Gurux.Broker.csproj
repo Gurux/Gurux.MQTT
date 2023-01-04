@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net46;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net462;netcoreapp3.1</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Gurux.Common" Version="8.4.2212.501" />
+    <PackageReference Include="Gurux.Common" Version="8.4.2301.402" />
      <PackageReference Include="NETStandard.Library" Version="2.0.3" />
     <PackageReference Include="MQTTnet" Version="4.1.4.563" />
   </ItemGroup>

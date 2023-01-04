@@ -105,7 +105,7 @@ namespace Gurux.Broker
                     {
                         if (it2.Target == s)
                         {
-                            GXMessage msg = new GXMessage() { id = it2.Message.id, type = (int)MesssageType.Receive, sender = it2.Name, frame = tmp };
+                            GXMessage msg = new GXMessage() { id = it2.Message.id, type = (int)MessageType.Receive, sender = it2.Name, frame = tmp };
                             GXJsonParser parser = new GXJsonParser();
                             string str = parser.Serialize(msg);
                             var message = new MqttApplicationMessageBuilder()
@@ -134,7 +134,7 @@ namespace Gurux.Broker
                 {
                     Console.WriteLine("---Received message");
                     Console.WriteLine($"+ Topic = {t.ApplicationMessage.Topic}");
-                    Console.WriteLine($"+ Type = {(MesssageType)msg.type}");
+                    Console.WriteLine($"+ Type = {(MessageType)msg.type}");
                     Console.WriteLine($"+ Payload = {msg.frame}");
                     Console.WriteLine($"+ QoS = {t.ApplicationMessage.QualityOfServiceLevel}");
                     Console.WriteLine($"+ Retain = {t.ApplicationMessage.Retain}");
@@ -148,9 +148,9 @@ namespace Gurux.Broker
                         it.Message = msg;
                         try
                         {
-                            switch ((MesssageType)msg.type)
+                            switch ((MessageType)msg.type)
                             {
-                                case MesssageType.Open:
+                                case MessageType.Open:
                                     it.Target.Open();
                                     try
                                     {
@@ -171,7 +171,7 @@ namespace Gurux.Broker
                                         it.Target.Close();
                                         throw ex;
                                     }
-                                    msg2 = new GXMessage() { id = msg.id, type = (int)MesssageType.Open, sender = it.Name };
+                                    msg2 = new GXMessage() { id = msg.id, type = (int)MessageType.Open, sender = it.Name };
                                     str = parser.Serialize(msg2);
                                     message = new MqttApplicationMessageBuilder()
                                     .WithTopic(msg.sender)
@@ -180,12 +180,12 @@ namespace Gurux.Broker
                                     .Build();
                                     await mqttClient.PublishAsync(message, cancellationToken);
                                     break;
-                                case MesssageType.Send:
+                                case MessageType.Send:
                                     it.Target.Send(GXCommon.HexToBytes(msg.frame), null);
                                     break;
-                                case MesssageType.Close:
+                                case MessageType.Close:
                                     it.Target.Close();
-                                    msg2 = new GXMessage() { id = msg.id, type = (int)MesssageType.Close, sender = it.Name };
+                                    msg2 = new GXMessage() { id = msg.id, type = (int)MessageType.Close, sender = it.Name };
                                     str = parser.Serialize(msg2);
                                     message = new MqttApplicationMessageBuilder()
                                     .WithTopic(msg.sender)
@@ -198,7 +198,7 @@ namespace Gurux.Broker
                         }
                         catch (Exception ex)
                         {
-                            msg2 = new GXMessage() { id = msg.id, type = (int)MesssageType.Exception, sender = it.Name, exception = ex.Message };
+                            msg2 = new GXMessage() { id = msg.id, type = (int)MessageType.Exception, sender = it.Name, exception = ex.Message };
                             str = parser.Serialize(msg2);
                             message = new MqttApplicationMessageBuilder()
                             .WithTopic(msg.sender)

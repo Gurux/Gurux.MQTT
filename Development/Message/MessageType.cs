@@ -35,7 +35,7 @@ namespace Gurux.MQTT.Message
     /// <summary>
     /// Describes message types.
     /// </summary>
-    public enum MesssageType : int
+    internal enum MessageType : int
     {
         /// <summary>
         /// Connection is open.

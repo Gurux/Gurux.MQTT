@@ -117,8 +117,6 @@ namespace Gurux.Broker
             .WithDefaultEndpointPort(port)
             .Build();
             optionsBuilder.DefaultEndpointOptions.IsEnabled = true;
-//            var optionsBuilder = new MqttServerOptionsBuilder().WithDefaultEndpointPort(port).Build();
-
             var mqttServer = new MqttFactory().CreateMqttServer(optionsBuilder);
             mqttServer.InterceptingPublishAsync += async args =>
             {

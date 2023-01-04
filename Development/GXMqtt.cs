@@ -30,7 +30,6 @@
 // Full text may be retrieved at http://www.gnu.org/licenses/gpl-2.0.txt
 //---------------------------------------------------------------------------
 using Gurux.Common;
-using Gurux.Common.JSon;
 using Gurux.MQTT.Message;
 using Gurux.MQTT.Properties;
 using Gurux.Shared;
@@ -355,11 +354,8 @@ namespace Gurux.MQTT
         }
 
         /// <summary>
-        /// Retrieves or sets the name or IP address of the host.
-        /// </summary>
-        /// <value>
         /// Used topic.
-        /// </value>
+        /// </summary>
         /// <seealso cref="Open">Open</seealso>
         /// <seealso cref="Port">Port</seealso>
         /// <seealso cref="ClientId">Protocol</seealso>
@@ -383,14 +379,11 @@ namespace Gurux.MQTT
         }
 
         /// <summary>
-        /// Retrieves or sets the name or IP address of the host.
+        /// Retrieves or sets used client ID.
         /// </summary>
-        /// <value>
-        /// Used topic.
-        /// </value>
         /// <seealso cref="Open">Open</seealso>
         /// <seealso cref="Port">Port</seealso>
-        /// <seealso cref="Topic">Protocol</seealso>
+        /// <seealso cref="Topic">Topic</seealso>
         [DefaultValue("")]
         [Category("Communication")]
         [Description("Retrieves or sets used client ID.")]
@@ -610,8 +603,13 @@ namespace Gurux.MQTT
         /// <param name="msg"></param>
         private async Task PublishMessageAsync(GXMessage msg)
         {
-            GXJsonParser parser = new GXJsonParser();
-            string str = parser.Serialize(msg);
+            string str;
+#if NET462
+            var parser = new Gurux.Common.JSon.GXJsonParser();
+            str = parser.Serialize(msg);
+#else
+            str = System.Text.Json.JsonSerializer.Serialize(msg);
+#endif
             MqttApplicationMessage message = new MqttApplicationMessageBuilder()
             .WithTopic(topic)
             .WithPayload(str)
@@ -626,7 +624,7 @@ namespace Gurux.MQTT
             lastException = null;
             if (mqttClient != null && mqttClient.IsConnected)
             {
-                GXMessage msg = new GXMessage() { id = MessageId, type = (int)MesssageType.Close, sender = clientId };
+                GXMessage msg = new GXMessage() { id = MessageId, type = (int)MessageType.Close, sender = clientId };
                 try
                 {
                     PublishMessageAsync(msg).Wait();
@@ -742,19 +740,24 @@ namespace Gurux.MQTT
             mqttClient.ApplicationMessageReceivedAsync += async t =>
             {
                 string str = ASCIIEncoding.ASCII.GetString(t.ApplicationMessage.Payload);
-                GXJsonParser parser = new GXJsonParser();
-                GXMessage msg = parser.Deserialize<GXMessage>(str);
-                if (msg.id == messageId || (MesssageType)msg.type == MesssageType.Close || (MesssageType)msg.type == MesssageType.Exception)
+                GXMessage msg;
+#if NET462
+                var parser = new Gurux.Common.JSon.GXJsonParser();
+                msg = parser.Deserialize<GXMessage>(str);
+#else
+                msg = System.Text.Json.JsonSerializer.Deserialize<GXMessage>(str);
+#endif
+                if (msg.id == messageId || (MessageType)msg.type == MessageType.Close || (MessageType)msg.type == MessageType.Exception)
                 {
-                    switch ((MesssageType)msg.type)
+                    switch ((MessageType)msg.type)
                     {
-                        case MesssageType.Open:
+                        case MessageType.Open:
                             m_OnMediaStateChange?.Invoke(this, new MediaStateEventArgs(MediaState.Open));
                             replyReceivedEvent.Set();
                             break;
-                        case MesssageType.Send:
+                        case MessageType.Send:
                             break;
-                        case MesssageType.Receive:
+                        case MessageType.Receive:
                             byte[] bytes = Gurux.Common.GXCommon.HexToBytes(msg.frame);
                             replyReceivedEvent.Set();
                             if (bytes.Length != 0)
@@ -762,11 +765,11 @@ namespace Gurux.MQTT
                                 HandleReceivedData(bytes.Length, bytes, t.ClientId);
                             }
                             break;
-                        case MesssageType.Close:
+                        case MessageType.Close:
                             m_OnMediaStateChange?.Invoke(this, new MediaStateEventArgs(MediaState.Closed));
                             replyReceivedEvent.Set();
                             break;
-                        case MesssageType.Exception:
+                        case MessageType.Exception:
                             lastException = msg.exception;
                             replyReceivedEvent.Set();
                             break;
@@ -782,7 +785,7 @@ namespace Gurux.MQTT
                 // Subscribe to a topic
                 mqttClient.SubscribeAsync(new MqttTopicFilterBuilder().WithTopic(clientId).WithExactlyOnceQoS().Build()).Wait();
                 m_OnMediaStateChange?.Invoke(this, new MediaStateEventArgs(MediaState.Opening));
-                GXMessage msg = new GXMessage() { id = MessageId, type = (int)MesssageType.Open, sender = clientId };
+                GXMessage msg = new GXMessage() { id = MessageId, type = (int)MessageType.Open, sender = clientId };
                 await PublishMessageAsync(msg);
             };
             mqttClient.DisconnectedAsync += async t =>
@@ -860,7 +863,7 @@ namespace Gurux.MQTT
             if (tmp != null)
             {
                 BytesSent += (ulong)tmp.Length;
-                GXMessage msg = new GXMessage() { id = MessageId, type = (int)MesssageType.Send, sender = clientId, frame = Common.GXCommon.ToHex(tmp) };
+                GXMessage msg = new GXMessage() { id = MessageId, type = (int)MessageType.Send, sender = clientId, frame = Common.GXCommon.ToHex(tmp) };
                 PublishMessageAsync(msg).Wait();
             }
         }

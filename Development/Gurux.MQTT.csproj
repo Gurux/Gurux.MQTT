@@ -11,7 +11,7 @@
     <Version Condition=" '$(BUILD_BUILDNUMBER)' == '' ">0.0.1-local</Version>
     <Version Condition=" '$(BUILD_BUILDNUMBER)' != '' ">$(BUILD_BUILDNUMBER)</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <TargetFrameworks>net6.0-windows;net60;net46;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net6.0-windows;net60;net462;netcoreapp3.1</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/gurux/gurux.mqtt</RepositoryUrl>
     <PackageTags>Gurux Device Framework MQTT</PackageTags>
@@ -29,7 +29,7 @@
     <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net46'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
    <Compile Update="Properties\Resources.Designer.cs">
      <DesignTime>True</DesignTime>
      <AutoGen>True</AutoGen>
@@ -48,15 +48,20 @@
      <Compile Remove="Shared\PropertiesForm.Designer.cs" />
   </ItemGroup>
  <ItemGroup>
-    <PackageReference Include="Gurux.Common" Version="8.4.2212.501" />
+    <PackageReference Include="Gurux.Common" Version="8.4.2301.402" />
     <PackageReference Include="NETStandard.Library" Version="2.0.3" />
     <PackageReference Include="MQTTnet" Version="4.1.4.563" />
  </ItemGroup>
  
- <ItemGroup Condition="'$(TargetFramework)' == 'net46' or '$(TargetFramework)' == 'net6.0-windows'">
+ <ItemGroup Condition="'$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'net6.0-windows'">
     <Reference Include="System.Data.Linq" />
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
+
+ <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+    <Reference Include="Newtonsoft.Json" />
+  </ItemGroup>
+
   <ItemGroup>
     <None Include="..\gurux_mqtt.png" Pack="true" PackagePath="\" />
   </ItemGroup>
