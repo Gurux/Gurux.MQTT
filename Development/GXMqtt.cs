@@ -320,7 +320,7 @@ namespace Gurux.MQTT
             }
         }
 
-#if !NETCOREAPP2_0 && !NETCOREAPP2_1 && !NETSTANDARD2_0 && !NETCOREAPP3_1 && !NET6_0
+#if NET462_OR_GREATER || WINDOWS
         /// <summary>
         /// Shows MQTT Properties dialog.
         /// </summary>
@@ -343,7 +343,7 @@ namespace Gurux.MQTT
                 return new Settings(this);
             }
         }
-#endif //!NETCOREAPP2_0 && !NETCOREAPP2_1 && !NETSTANDARD2_0 && !NETCOREAPP3_1
+#endif //NET462_OR_GREATER || WINDOWS
 
         private void NotifyPropertyChanged(string info)
         {
