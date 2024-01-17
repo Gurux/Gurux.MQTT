@@ -58,6 +58,7 @@ namespace Gurux.Broker
             foreach (Media it in connection.Connections)
             {
                 Console.WriteLine("Media topic: " + it.Name);
+                Console.WriteLine("Settings: " + it.Target.ToString());
             }
         }
 

@@ -2,15 +2,15 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net462;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net80</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Gurux.Common" Version="8.4.2302.901" />
-    <PackageReference Include="Gurux.Net" Version="8.4.2302.902" />
-    <PackageReference Include="Gurux.Serial" Version="8.4.2302.902" />
+    <PackageReference Include="Gurux.Net" Version="8.4.2302.904" />
+    <PackageReference Include="Gurux.Serial" Version="8.4.2401.401" />
      <PackageReference Include="NETStandard.Library" Version="2.0.3" />
-    <PackageReference Include="MQTTnet" Version="4.1.4.563" />
+    <PackageReference Include="MQTTnet" Version="4.3.3.952" />
   </ItemGroup>
 
   <ItemGroup>

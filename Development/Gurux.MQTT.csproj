@@ -4,7 +4,7 @@
     <AssemblyName>Gurux.MQTT</AssemblyName>
     <Company>Gurux Ltd</Company>
     <Authors>Gurux Ltd</Authors>
-    <Copyright>Copyright (c) 1998-2023 Gurux Ltd. All rights reserved.</Copyright>
+    <Copyright>Copyright (c) 1998-2024 Gurux Ltd. All rights reserved.</Copyright>
     <PackageProjectUrl>www.gurux.fi/GXMQTT</PackageProjectUrl>
     <PackageLicenseUrl></PackageLicenseUrl>
     <Description>MQTT media component</Description>
