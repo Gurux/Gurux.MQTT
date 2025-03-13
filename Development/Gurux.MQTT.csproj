@@ -4,14 +4,14 @@
     <AssemblyName>Gurux.MQTT</AssemblyName>
     <Company>Gurux Ltd</Company>
     <Authors>Gurux Ltd</Authors>
-    <Copyright>Copyright (c) 1998-2024 Gurux Ltd. All rights reserved.</Copyright>
+    <Copyright>Copyright (c) 1998-2025 Gurux Ltd. All rights reserved.</Copyright>
     <PackageProjectUrl>www.gurux.fi/GXMQTT</PackageProjectUrl>
     <PackageLicenseUrl></PackageLicenseUrl>
     <Description>MQTT media component</Description>
     <Version Condition=" '$(BUILD_BUILDNUMBER)' == '' ">0.0.1-local</Version>
     <Version Condition=" '$(BUILD_BUILDNUMBER)' != '' ">$(BUILD_BUILDNUMBER)</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <TargetFrameworks>net6.0-windows;net60;net462;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net6.0-windows;net60;netcoreapp3.1</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/gurux/gurux.mqtt</RepositoryUrl>
     <PackageTags>Gurux Device Framework MQTT</PackageTags>
@@ -29,18 +29,6 @@
     <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
-   <Compile Update="Properties\Resources.Designer.cs">
-     <DesignTime>True</DesignTime>
-     <AutoGen>True</AutoGen>
-     <DependentUpon>Resources.resx</DependentUpon>
-   </Compile>
-   <Compile Update="Settings.cs" />
-   <Compile Update="Settings.Designer.cs">
-   <DependentUpon>Settings.cs</DependentUpon>
-   </Compile>
- </ItemGroup>
-
  <ItemGroup Condition="'$(TargetFramework)' == 'net60' or '$(TargetFramework)' == 'netcoreapp3.1' or '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netstandard2.1'">
        <Compile Remove="Settings.cs" />
      <Compile Remove="Settings.Designer.cs" />
@@ -48,18 +36,14 @@
      <Compile Remove="Shared\PropertiesForm.Designer.cs" />
   </ItemGroup>
  <ItemGroup>
-    <PackageReference Include="Gurux.Common" Version="8.4.2302.901" />
+    <PackageReference Include="Gurux.Common" Version="8.4.2503.602" />
     <PackageReference Include="NETStandard.Library" Version="2.0.3" />
     <PackageReference Include="MQTTnet" Version="4.1.4.563" />
  </ItemGroup>
  
- <ItemGroup Condition="'$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'net6.0-windows'">
+ <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows'">
     <Reference Include="System.Data.Linq" />
     <Reference Include="System.Windows.Forms" />
-  </ItemGroup>
-
- <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
-    <Reference Include="Newtonsoft.Json" />
   </ItemGroup>
 
   <ItemGroup>

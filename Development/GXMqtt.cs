@@ -740,13 +740,7 @@ namespace Gurux.MQTT
             mqttClient.ApplicationMessageReceivedAsync += async t =>
             {
                 string str = ASCIIEncoding.ASCII.GetString(t.ApplicationMessage.Payload);
-                GXMessage msg;
-#if NET462
-                var parser = new Gurux.Common.JSon.GXJsonParser();
-                msg = parser.Deserialize<GXMessage>(str);
-#else
-                msg = System.Text.Json.JsonSerializer.Deserialize<GXMessage>(str);
-#endif
+                GXMessage msg = System.Text.Json.JsonSerializer.Deserialize<GXMessage>(str);
                 if (msg.id == messageId || (MessageType)msg.type == MessageType.Close || (MessageType)msg.type == MessageType.Exception)
                 {
                     switch ((MessageType)msg.type)
@@ -758,7 +752,7 @@ namespace Gurux.MQTT
                         case MessageType.Send:
                             break;
                         case MessageType.Receive:
-                            byte[] bytes = Gurux.Common.GXCommon.HexToBytes(msg.frame);
+                            byte[] bytes = Common.GXCommon.HexToBytes(msg.frame);
                             replyReceivedEvent.Set();
                             if (bytes.Length != 0)
                             {
