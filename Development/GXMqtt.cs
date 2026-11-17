@@ -1,887 +1,501 @@
-﻿//
 // --------------------------------------------------------------------------
-//  Gurux Ltd
+// Gurux Ltd
 //
+// Copyright (c) Gurux Ltd.
 //
+// This file is part of Gurux Device Framework.
 //
-// Filename:        $HeadURL$
+// Commit: $Format:%H$
+// Date:   $Format:%cI$
 //
-// Version:         $Revision$,
-//                  $Date$
-//                  $Author$
+// This software is available under either of the following licenses:
 //
-// Copyright (c) Gurux Ltd
+// 1. GNU General Public License, version 2 only (GPL-2.0-only).
+//    See the LICENSE file included with this distribution.
 //
-//---------------------------------------------------------------------------
+// 2. A commercial license granted by Gurux Ltd under a separate written
+//    agreement. Use under this option requires a valid commercial license
+//    and is governed by the terms of that agreement.
 //
-//  DESCRIPTION
+// If you have not obtained a commercial license from Gurux Ltd,
+// use of this software is governed by GPL-2.0-only.
 //
-// This file is a part of Gurux Device Framework.
+// Commercial licensing: https://www.gurux.fi/
 //
-// Gurux Device Framework is Open Source software; you can redistribute it
-// and/or modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; version 2 of the License.
-// Gurux Device Framework is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-// See the GNU General Public License for more details.
-//
-// This code is licensed under the GNU General Public License v2.
-// Full text may be retrieved at http://www.gnu.org/licenses/gpl-2.0.txt
-//---------------------------------------------------------------------------
+// SPDX-License-Identifier: GPL-2.0-only OR LicenseRef-Gurux-Commercial
+// --------------------------------------------------------------------------
+
+using System.Buffers;
+using System.Globalization;
+using System.Runtime.ExceptionServices;
+using System.Text.Json;
+using System.Threading.Channels;
 using Gurux.Common;
 using Gurux.MQTT.Message;
 using Gurux.MQTT.Properties;
-using Gurux.Shared;
 using MQTTnet;
-using MQTTnet.Client;
 using MQTTnet.Protocol;
-using System;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Xml;
 
-namespace Gurux.MQTT
+namespace Gurux.MQTT;
+
+/// <summary>Asynchronous MQTT transport for the Gurux JSON bridge protocol.</summary>
+/// <remarks>Each opening owns a client, reply subscription and bounded receive dispatcher.
+/// Broker connection alone is insufficient: the bridge must acknowledge opening the selected meter.</remarks>
+public partial class GXMqtt : GXMediaBase, IGXMediaIconProvider
 {
-    /// <summary>
-    /// GXMqtt implements  MQTT client that sends bytes to the MQTT broker.
-    /// </summary>
-    public class GXMqtt : IGXMedia2
+    /// <summary>Opens the embedded PNG icon for this media without loading a UI framework.</summary>
+    /// <returns>A new readable stream positioned at the beginning, or null if the embedded icon is unavailable.</returns>
+    /// <remarks>The caller owns the stream and must dispose it. Each call returns an independent stream.</remarks>
+    public Stream? OpenIcon()
     {
-        /// <summary>
-        /// Sync object.
-        /// </summary>
-        private object sync = new object();
-        internal GXSynchronousMediaBase syncBase;
+        return typeof(GXMqtt).Assembly.GetManifestResourceStream("Gurux.MQTT.MediaIcon.png");
+    }
 
-        //Events
-        PropertyChangedEventHandler m_OnPropertyChanged;
-        MediaStateChangeEventHandler m_OnMediaStateChange;
-        TraceEventHandler m_OnTrace;
-        ClientConnectedEventHandler m_OnClientConnected;
-        ClientDisconnectedEventHandler m_OnClientDisconnected;
-        internal ErrorEventHandler m_OnError;
-        internal ReceivedEventHandler m_OnReceived;
-        internal AutoResetEvent replyReceivedEvent = new AutoResetEvent(false);
+    /// <summary>Protects session ownership and settings replacement without spanning awaits.</summary>
+    private readonly object admission = new();
+    /// <summary>Identifies event callbacks that may request shutdown without awaiting their own dispatcher.</summary>
+    private static readonly AsyncLocal<Session?> callbackOwner = new();
+    /// <summary>Owns the current session until all of its native and managed work has stopped.</summary>
+    private Session? session;
+    /// <summary>Allocates wire identifiers across reopen operations, reserving zero.</summary>
+    private ushort messageId;
+    /// <summary>Limits one decoded bridge frame and prevents unbounded wire deserialization.</summary>
+    private const int MaximumFrameBytes = 1024 * 1024;
 
-        /// <summary>
-        /// Last exception.
-        /// </summary>
-        private string lastException;
-
-        /// <summary>
-        /// Unique Message ID.
-        /// </summary>
-        private UInt16 messageId;
-
-        private UInt16 MessageId
-        {
-            get
-            {
-                return ++messageId;
-            }
-        }
-
-        /// <summary>
-        /// Used topic.
-        /// </summary>
-        string topic;
-
-        /// <summary>
-        /// Used client ID.
-        /// </summary>
-        string clientId;
-
-        /// <summary>
-        /// Client ID that user want's to use.
-        /// </summary>
-        string userClientId;
-
-        /// <summary>
-        /// Server address.
-        /// </summary>
-        string serverAddress;
-        /// <summary>
-        /// Host port.
-        /// </summary>
-        int port = 1883;
-
-        static readonly MqttFactory factory = new MqttFactory();
-        IMqttClient mqttClient;
-        string IGXMedia.Name => "MQTT";
-
-        /// <summary>
-        /// What level of tracing is used.
-        /// </summary>
-        public TraceLevel Trace
-        {
-            get
-            {
-                return syncBase.Trace;
-            }
-            set
-            {
-                syncBase.Trace = value;
-            }
-        }
-
-        /// <inheritdoc cref="IGXMedia.IsOpen"/>
-        /// <seealso cref="Open">Open</seealso>
-        /// <seealso cref="Close">Close</seealso>
-        [Browsable(false)]
-        public bool IsOpen => mqttClient != null && mqttClient.IsConnected;
-
-        string IGXMedia.MediaType => "MQTT";
-
-        bool IGXMedia.Enabled => true;
-
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        public GXMqtt()
-        {
-            syncBase = new GXSynchronousMediaBase(1024);
-            ConfigurableSettings = AvailableMediaSettings.All;
-        }
-
-        string IGXMedia.Settings
-        {
-            get
-            {
-                string tmp = "";
-                if (!string.IsNullOrEmpty(serverAddress))
-                {
-                    tmp += "<IP>" + serverAddress + "</IP>" + Environment.NewLine;
-                }
-                if (port != 0)
-                {
-                    tmp += "<Port>" + port + "</Port>" + Environment.NewLine;
-                }
-                tmp += "<Topic>" + topic + "</Topic>" + Environment.NewLine;
-                if (!string.IsNullOrEmpty(ClientId))
-                {
-                    tmp += "<ClientId>" + ClientId + "</ClientId>" + Environment.NewLine;
-                }
-                return tmp;
-            }
-            set
-            {
-                if (!string.IsNullOrEmpty(value))
-                {
-                    XmlReaderSettings settings = new XmlReaderSettings(); ;
-                    settings.ConformanceLevel = ConformanceLevel.Fragment;
-                    using (XmlReader xmlReader = XmlReader.Create(new System.IO.StringReader(value), settings))
-                    {
-                        while (!xmlReader.EOF)
-                        {
-                            if (xmlReader.IsStartElement())
-                            {
-                                switch (xmlReader.Name)
-                                {
-                                    case "Topic":
-                                        topic = (string)xmlReader.ReadElementContentAs(typeof(string), null);
-                                        break;
-                                    case "Port":
-                                        port = (int)(xmlReader.ReadElementContentAs(typeof(int), null));
-                                        break;
-                                    case "IP":
-                                        serverAddress = (string)xmlReader.ReadElementContentAs(typeof(string), null);
-                                        break;
-                                    case "ClientId":
-                                        ClientId = (string)xmlReader.ReadElementContentAs(typeof(string), null);
-                                        break;
-                                }
-                            }
-                            else
-                            {
-                                xmlReader.Read();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <inheritdoc cref="IGXMedia.Synchronous"/>
-        public object Synchronous { get; } = new object();
-
-        /// <inheritdoc cref="IGXMedia.IsSynchronous"/>
-        public bool IsSynchronous
-        {
-            get
-            {
-                bool reserved = System.Threading.Monitor.TryEnter(Synchronous, 0);
-                if (reserved)
-                {
-                    System.Threading.Monitor.Exit(Synchronous);
-                }
-                return !reserved;
-            }
-        }
-
-        /// <inheritdoc cref="IGXMedia.ResetSynchronousBuffer"/>
-        public void ResetSynchronousBuffer()
-        {
-            lock (syncBase.receivedSync)
-            {
-                syncBase.receivedSize = 0;
-            }
-        }
-
-        /// <inheritdoc cref="IGXMedia.Validate"/>
-        public void Validate()
-        {
-            if (port == 0)
-            {
-                throw new Exception(Resources.InvalidBrokerPort);
-            }
-            if (!string.IsNullOrEmpty(serverAddress))
-            {
-                throw new Exception(Resources.InvalidBrokerName);
-            }
-            if (!string.IsNullOrEmpty(topic))
-            {
-                throw new Exception(Resources.InvalidTopic);
-            }
-        }
-
-        /// <summary>
-        /// Sent byte count.
-        /// </summary>
-        /// <seealso cref="BytesReceived">BytesReceived</seealso>
-        /// <seealso cref="ResetByteCounters">ResetByteCounters</seealso>
-        [Browsable(false)]
-        public UInt64 BytesSent
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Received byte count.
-        /// </summary>
-        /// <seealso cref="BytesSent">BytesSent</seealso>
-        /// <seealso cref="ResetByteCounters">ResetByteCounters</seealso>
-        [Browsable(false)]
-        public UInt64 BytesReceived
-        {
-            get;
-            private set;
-        }
-
-        /// <inheritdoc cref="IGXMedia.Eop"/>
-        public object Eop
-        {
-            get;
-            set;
-        }
-
-        /// <inheritdoc cref="IGXMedia.ConfigurableSettings"/>
-        public AvailableMediaSettings ConfigurableSettings
-        {
-            get
-            {
-                return (AvailableMediaSettings)((IGXMedia)this).ConfigurableSettings;
-            }
-            set
-            {
-                ((IGXMedia)this).ConfigurableSettings = (int)value;
-            }
-        }
-
-        /// <inheritdoc cref="IGXMedia.ConfigurableSettings"/>
-        int IGXMedia.ConfigurableSettings
-        {
-            get;
-            set;
-        }
-
-        /// <inheritdoc />
-        object IGXMedia.Tag { get; set; }
-
-        IGXMediaContainer IGXMedia.MediaContainer { get; set; }
-
-        /// <inheritdoc />
-        [Browsable(false), ReadOnly(true)]
-        public object SyncRoot
-        {
-            get
-            {
-                //In some special cases when binary serialization is used this might be null
-                //after deserialize. Just set it.
-                if (sync == null)
-                {
-                    sync = new object();
-                }
-                return sync;
-            }
-        }
-
-#if NET462_OR_GREATER || WINDOWS
-        /// <summary>
-        /// Shows MQTT Properties dialog.
-        /// </summary>
-        /// <param name="parent">Owner window of the Properties dialog.</param>
-        /// <returns>True, if the user has accepted the changes.</returns>
-        /// <seealso cref="Port">Port</seealso>
-        /// <seealso cref="ServerAddress">HostName</seealso>
-        /// <seealso href="PropertiesDialog.html">Properties Dialog</seealso>
-        public bool Properties(System.Windows.Forms.Form parent)
-        {
-            return new PropertiesForm(PropertiesForm, Resources.SettingsTxt, IsOpen, Resources.OK, Resources.Cancel,
-                "https://www.gurux.fi/GXMQTTProperties").ShowDialog(parent) == System.Windows.Forms.DialogResult.OK;
-        }
-
-        /// <inheritdoc cref="IGXMedia.PropertiesForm"/>
-        public System.Windows.Forms.Form PropertiesForm
-        {
-            get
-            {
-                return new Settings(this);
-            }
-        }
-#endif //NET462_OR_GREATER || WINDOWS
-
-        private void NotifyPropertyChanged(string info)
-        {
-            if (m_OnPropertyChanged != null)
-            {
-                m_OnPropertyChanged(this, new PropertyChangedEventArgs(info));
-            }
-        }
-
-        /// <summary>
-        /// Used topic.
-        /// </summary>
-        /// <seealso cref="Open">Open</seealso>
-        /// <seealso cref="Port">Port</seealso>
-        /// <seealso cref="ClientId">Protocol</seealso>
-        [DefaultValue("")]
-        [Category("Communication")]
-        [Description("Retrieves or sets used topic.")]
-        public string Topic
-        {
-            get
-            {
-                return topic;
-            }
-            set
-            {
-                if (topic != value)
-                {
-                    topic = value;
-                    NotifyPropertyChanged("Topic");
-                }
-            }
-        }
-
-        /// <summary>
-        /// Retrieves or sets used client ID.
-        /// </summary>
-        /// <seealso cref="Open">Open</seealso>
-        /// <seealso cref="Port">Port</seealso>
-        /// <seealso cref="Topic">Topic</seealso>
-        [DefaultValue("")]
-        [Category("Communication")]
-        [Description("Retrieves or sets used client ID.")]
-        public string ClientId
-        {
-            get
-            {
-                return userClientId;
-            }
-            set
-            {
-                if (userClientId != value)
-                {
-                    userClientId = value;
-                    NotifyPropertyChanged("ClientId");
-                }
-            }
-        }
-
-
-        /// <summary>
-        /// MQTT server address.
-        /// </summary>
-        /// <value>MQTT server address.</value>
-        /// <seealso cref="Open">Open</seealso>
-        /// <seealso cref="Port">Port</seealso>
-        [DefaultValue("")]
-        [Category("Communication")]
-        [Description("MQTT server address.")]
-        public string ServerAddress
-        {
-            get
-            {
-                return serverAddress;
-            }
-            set
-            {
-                if (serverAddress != value)
-                {
-                    serverAddress = value;
-                    NotifyPropertyChanged("ServerAddress");
-                }
-            }
-        }
-
-        /// <summary>
-        /// MQTT server port number.
-        /// </summary>
-        /// <value>MQTT server port number.</value>
-        /// <seealso cref="Open">Open</seealso>
-        /// <seealso cref="ServerAddress">ServerAddress</seealso>
-        [DefaultValue(1883)]
-        [Category("Communication")]
-        [Description("MQTT server port number.")]
-        public int Port
-        {
-            get
-            {
-                return port;
-            }
-            set
-            {
-                if (port != value)
-                {
-                    port = value;
-                    NotifyPropertyChanged("Port");
-                }
-            }
-        }
-
-        /// <inheritdoc />
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append(serverAddress);
-            sb.Append(':');
-            sb.Append(port);
-            sb.Append(' ');
-            sb.Append(topic);
-            return sb.ToString();
-        }
-
-        /// <summary>
-        /// Occurs when a property value changes.
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged
-        {
-            add
-            {
-                m_OnPropertyChanged += value;
-            }
-            remove
-            {
-                m_OnPropertyChanged -= value;
-            }
-        }
-
-        /// <summary>
-        /// GXNet component sends received data through this method.
-        /// </summary>
-        [Description("GXNet component sends received data through this method.")]
-        public event ReceivedEventHandler OnReceived
-        {
-            add
-            {
-                m_OnReceived += value;
-            }
-            remove
-            {
-                m_OnReceived -= value;
-            }
-        }
-
-        /// <summary>
-        /// Errors that occur after the connection is established, are sent through this method.
-        /// </summary>
-        [Description("Errors that occur after the connection is established, are sent through this method.")]
-        public event ErrorEventHandler OnError
-        {
-            add
-            {
-
-                m_OnError += value;
-            }
-            remove
-            {
-                m_OnError -= value;
-            }
-        }
-
-        /// <summary>
-        /// Media component sends notification, when its state changes.
-        /// </summary>
-        [Description("Media component sends notification, when its state changes.")]
-        public event MediaStateChangeEventHandler OnMediaStateChange
-        {
-            add
-            {
-                m_OnMediaStateChange += value;
-            }
-            remove
-            {
-                m_OnMediaStateChange -= value;
-            }
-        }
-#if WINDOWS_PHONE
-    event ClientConnectedEventHandler IGXMedia.OnClientConnected
+    /// <summary>Owns a single broker connection and all operations tied to its lifetime.</summary>
+    private sealed class Session
     {
-        add {
-            throw new NotImplementedException();
-        }
-        remove {
-            throw new NotImplementedException();
+        /// <summary>Stores the immutable connection parameters captured before opening.</summary>
+        internal readonly MqttSettings Settings;
+        /// <summary>Stores the exact client ID and private reply subscription topic.</summary>
+        internal readonly string ClientId;
+        /// <summary>Owns the native MQTT client.</summary>
+        internal readonly IMqttClient Client = new MqttClientFactory().CreateMqttClient();
+        /// <summary>Cancels opening, application writes and queued receive dispatch.</summary>
+        internal readonly CancellationTokenSource Stop = new();
+        /// <summary>Serializes application publishes with the shutdown handshake.</summary>
+        internal readonly SemaphoreSlim SendLock = new(1);
+        /// <summary>Protects reply correlations and the bounded accepted identifier history.</summary>
+        internal readonly object Replies = new();
+        /// <summary>Maps pending control identifiers to their expected wire type and acknowledgement.</summary>
+        internal readonly Dictionary<ushort, (MessageType Type, TaskCompletionSource Completion)> Pending = new();
+        /// <summary>Rejects receive packets from prior sessions or unrelated requests.</summary>
+        internal readonly HashSet<ushort> Accepted = new();
+        /// <summary>Bounds the accepted identifier history to the most recent 256 requests.</summary>
+        internal readonly Queue<ushort> History = new();
+        /// <summary>Separates user callbacks from MQTTnet's packet dispatch loop with bounded owned messages.</summary>
+        internal readonly Channel<GXMessage> Inbox = Channel.CreateBounded<GXMessage>(new BoundedChannelOptions(16)
+        {
+            SingleReader = true, SingleWriter = false, FullMode = BoundedChannelFullMode.Wait
+        });
+        /// <summary>Completes after the opening attempt releases its cancellation registration and client usage.</summary>
+        internal readonly TaskCompletionSource OpenDone = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        /// <summary>Releases receive dispatch only after shared buffers are ready for this session.</summary>
+        internal readonly TaskCompletionSource Ready = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        /// <summary>Tracks the asynchronous opening result returned to callers.</summary>
+        internal Task Opening = Task.CompletedTask;
+        /// <summary>Tracks shutdown shared by all callers.</summary>
+        internal Task? Closing;
+        /// <summary>Tracks the sole callback dispatcher for this connection.</summary>
+        internal Task Worker = Task.CompletedTask;
+        /// <summary>Publishes whether the bridge has acknowledged opening.</summary>
+        internal volatile bool Open;
+        /// <summary>Pins the bridge ownership correlation for unsolicited frames until this session ends.</summary>
+        internal ushort OpenId;
+        /// <summary>Records that opening may have reached the remote bridge even if its acknowledgement was lost.</summary>
+        internal bool OpenPublished;
+        /// <summary>Records a transport failure for reporting outside the MQTT callback.</summary>
+        internal Exception? Failure;
+        /// <summary>Constructs a new isolated connection with a fresh automatic reply identifier if needed.</summary>
+        /// <param name="settings">Validated settings captured before opening.</param>
+        internal Session(MqttSettings settings)
+        {
+            Settings = settings;
+            ClientId = string.IsNullOrEmpty(settings.ClientId) ? Guid.NewGuid().ToString() : settings.ClientId;
         }
     }
 
-    event ClientDisconnectedEventHandler IGXMedia.OnClientDisconnected
+    /// <summary>Creates a closed media with default broker settings.</summary>
+    public GXMqtt() { }
+    /// <inheritdoc/>
+    public override bool IsOpen { get { lock (admission) { return session?.Open == true; } } }
+    /// <inheritdoc/>
+    public override string Name => string.Format(CultureInfo.InvariantCulture, "{0}:{1}/{2}", ServerAddress, Port, Topic);
+    /// <inheritdoc/>
+    public override string MediaType => "MQTT";
+
+    /// <inheritdoc/>
+    public override Task OpenAsync(CancellationToken cancellationToken = default)
     {
-        add {
-            throw new NotImplementedException();
-        }
-        remove {
-            throw new NotImplementedException();
+        cancellationToken.ThrowIfCancellationRequested();
+        lock (admission)
+        {
+            if (session is not null)
+            {
+                if (session.Closing is not null) { throw new InvalidOperationException(Resources.Get("LifecycleInProgress")); }
+                return session.Open ? Task.CompletedTask : session.Opening.WaitAsync(cancellationToken);
+            }
+            ValidateForOpen();
+            var current = new Session(configuration);
+            session = current;
+            current.Opening = OpenCoreAsync(current, cancellationToken);
+            return current.Opening;
         }
     }
-#else
-        /// <summary>
-        /// Called when the client is establishing a connection with a Net Server.
-        /// </summary>
-        [Description("Called when the client is establishing a connection with a Net Server.")]
-        public event ClientConnectedEventHandler OnClientConnected
-        {
-            add
-            {
-                m_OnClientConnected += value;
-            }
-            remove
-            {
-                m_OnClientConnected -= value;
-            }
-        }
 
-        /// <summary>
-        /// Called when the client has been disconnected from the network server.
-        /// </summary>
-        [Description("Called when the client has been disconnected from the network server.")]
-        public event ClientDisconnectedEventHandler OnClientDisconnected
+    /// <summary>Connects, subscribes and waits for the bridge acknowledgement before exposing an open media.</summary>
+    /// <param name="current">The isolated session being opened.</param>
+    /// <param name="cancellationToken">Cancels this opening attempt.</param>
+    /// <returns>Completion after successful opening or fully awaited failure cleanup.</returns>
+    private async Task OpenCoreAsync(Session current, CancellationToken cancellationToken)
+    {
+        await Task.Yield();
+        Exception? failure = null;
+        using (var registration = cancellationToken.Register(() => current.Stop.Cancel()))
+        using (var deadline = CreateDeadline(current.Stop.Token, current.Settings.AsyncWaitTime))
         {
-            add
-            {
-                m_OnClientDisconnected += value;
-            }
-            remove
-            {
-                m_OnClientDisconnected -= value;
-            }
-        }
-
-        /// <inheritdoc />
-        [Description("Called when the Media is sending or receiving data.")]
-        public event TraceEventHandler OnTrace
-        {
-            add
-            {
-                m_OnTrace += value;
-            }
-            remove
-            {
-                m_OnTrace -= value;
-            }
-        }
-
-#endif
-        /// <summary>
-        /// Publish message.
-        /// </summary>
-        /// <param name="msg"></param>
-        private async Task PublishMessageAsync(GXMessage msg)
-        {
-            string str;
-#if NET462
-            var parser = new Gurux.Common.JSon.GXJsonParser();
-            str = parser.Serialize(msg);
-#else
-            str = System.Text.Json.JsonSerializer.Serialize(msg);
-#endif
-            MqttApplicationMessage message = new MqttApplicationMessageBuilder()
-            .WithTopic(topic)
-            .WithPayload(str)
-            .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.ExactlyOnce)
-            .Build();
-            await mqttClient.PublishAsync(message);
-        }
-
-        /// <inheritdoc />
-        public void Close()
-        {
-            lastException = null;
-            if (mqttClient != null && mqttClient.IsConnected)
-            {
-                GXMessage msg = new GXMessage() { id = MessageId, type = (int)MessageType.Close, sender = clientId };
-                try
-                {
-                    PublishMessageAsync(msg).Wait();
-                }
-                catch (Exception)
-                {
-                    replyReceivedEvent.Set();
-                }
-                if (AsyncWaitTime == 0)
-                {
-                    replyReceivedEvent.WaitOne();
-                }
-                else
-                {
-                    replyReceivedEvent.WaitOne((int)AsyncWaitTime * 1000);
-                }
-                if (mqttClient != null)
-                {
-                    mqttClient.DisconnectAsync().Wait();
-                }
-                mqttClient = null;
-                if (lastException != null)
-                {
-                    throw new Exception(lastException);
-                }
-            }
-        }
-
-        void IGXMedia.Copy(object target)
-        {
-            GXMqtt tmp = (GXMqtt)target;
-            port = tmp.port;
-            serverAddress = tmp.serverAddress;
-            topic = tmp.topic;
-        }
-
-        private int HandleReceivedData(int bytes, byte[] buff, string sender)
-        {
-            BytesReceived += (uint)bytes;
-            if (this.IsSynchronous)
-            {
-                TraceEventArgs arg;
-                lock (syncBase.receivedSync)
-                {
-                    int index = syncBase.receivedSize;
-                    syncBase.AppendData(buff, 0, bytes);
-                    if (bytes != 0 && Trace == TraceLevel.Verbose && m_OnTrace != null)
-                    {
-                        arg = new TraceEventArgs(TraceTypes.Received, buff, 0, bytes, null);
-                        m_OnTrace(this, arg);
-                    }
-                    if (bytes != 0 && Eop != null) //Search Eop if given.
-                    {
-                        if (Eop is Array)
-                        {
-                            foreach (object eop in (Array)Eop)
-                            {
-                                bytes = Gurux.Common.GXCommon.IndexOf(syncBase.m_Received, Gurux.Common.GXCommon.GetAsByteArray(eop), index, syncBase.receivedSize);
-                                if (bytes != -1)
-                                {
-                                    break;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            bytes = Gurux.Common.GXCommon.IndexOf(syncBase.m_Received, Gurux.Common.GXCommon.GetAsByteArray(Eop), index, syncBase.receivedSize);
-                        }
-                    }
-                    if (bytes != -1)
-                    {
-                        syncBase.receivedEvent.Set();
-                    }
-                }
-            }
-            else
-            {
-                if (m_OnReceived != null)
-                {
-                    syncBase.receivedSize = 0;
-                    byte[] data = new byte[bytes];
-                    Array.Copy(buff, data, bytes);
-                    if (Trace == TraceLevel.Verbose && m_OnTrace != null)
-                    {
-                        m_OnTrace(this, new TraceEventArgs(TraceTypes.Received, data, null));
-                    }
-                    m_OnReceived(this, new ReceiveEventArgs(data, sender));
-                }
-                else if (Trace == TraceLevel.Verbose && m_OnTrace != null)
-                {
-                    m_OnTrace(this, new TraceEventArgs(TraceTypes.Received, buff, 0, bytes, null));
-                }
-            }
-            return bytes;
-        }
-
-        /// <inheritdoc />
-        public void Open()
-        {
-            Close();
-            mqttClient = factory.CreateMqttClient();
-            if (string.IsNullOrEmpty(userClientId))
-            {
-                clientId = Guid.NewGuid().ToString();
-            }
-            else
-            {
-                clientId = userClientId;
-            }
-            var options = new MqttClientOptionsBuilder()
-            .WithTcpServer(serverAddress, port).WithClientId(clientId)
-            .Build();
-            mqttClient.ApplicationMessageReceivedAsync += async t =>
-            {
-                string str = ASCIIEncoding.ASCII.GetString(t.ApplicationMessage.Payload);
-                GXMessage msg = System.Text.Json.JsonSerializer.Deserialize<GXMessage>(str);
-                if (msg.id == messageId || (MessageType)msg.type == MessageType.Close || (MessageType)msg.type == MessageType.Exception)
-                {
-                    switch ((MessageType)msg.type)
-                    {
-                        case MessageType.Open:
-                            m_OnMediaStateChange?.Invoke(this, new MediaStateEventArgs(MediaState.Open));
-                            replyReceivedEvent.Set();
-                            break;
-                        case MessageType.Send:
-                            break;
-                        case MessageType.Receive:
-                            byte[] bytes = Common.GXCommon.HexToBytes(msg.frame);
-                            replyReceivedEvent.Set();
-                            if (bytes.Length != 0)
-                            {
-                                HandleReceivedData(bytes.Length, bytes, t.ClientId);
-                            }
-                            break;
-                        case MessageType.Close:
-                            m_OnMediaStateChange?.Invoke(this, new MediaStateEventArgs(MediaState.Closed));
-                            replyReceivedEvent.Set();
-                            break;
-                        case MessageType.Exception:
-                            lastException = msg.exception;
-                            replyReceivedEvent.Set();
-                            break;
-                    }
-                }
-                else
-                {
-                    m_OnTrace?.Invoke(this, new TraceEventArgs(TraceTypes.Info, Resources.UnknownReply + msg, msg.sender));
-                }
-            };
-            mqttClient.ConnectedAsync += async t =>
-            {
-                // Subscribe to a topic
-                mqttClient.SubscribeAsync(new MqttTopicFilterBuilder().WithTopic(clientId).WithExactlyOnceQoS().Build()).Wait();
-                m_OnMediaStateChange?.Invoke(this, new MediaStateEventArgs(MediaState.Opening));
-                GXMessage msg = new GXMessage() { id = MessageId, type = (int)MessageType.Open, sender = clientId };
-                await PublishMessageAsync(msg);
-            };
-            mqttClient.DisconnectedAsync += async t =>
-            {
-                m_OnMediaStateChange?.Invoke(this, new MediaStateEventArgs(MediaState.Closed));
-                replyReceivedEvent.Set();
-            };
             try
             {
-                replyReceivedEvent.Reset();
-                if (AsyncWaitTime == 0)
+                NotifyState(current, MediaState.Opening);
+                current.Client.ApplicationMessageReceivedAsync += args => HandleMessageAsync(current, args);
+                current.Client.DisconnectedAsync += _ =>
                 {
-                    mqttClient.ConnectAsync(options).Wait();
-                }
-                else
+                    bool unexpected;
+                    lock (admission) { unexpected = ReferenceEquals(session, current) && current.Closing is null; }
+                    if (unexpected) { StopFailedSession(current, new IOException(Resources.Get("BrokerDisconnected"))); }
+                    return Task.CompletedTask;
+                };
+                current.Worker = DispatchAsync(current);
+                var options = new MqttClientOptionsBuilder()
+                    .WithTcpServer(current.Settings.ServerAddress, current.Settings.Port)
+                    .WithClientId(current.ClientId).WithCleanSession().Build();
+                var connected = await current.Client.ConnectAsync(options, deadline.Token).ConfigureAwait(false);
+                if (connected.ResultCode != MqttClientConnectResultCode.Success)
                 {
-                    mqttClient.ConnectAsync(options).Wait((int)AsyncWaitTime * 1000);
+                    throw new IOException(Resources.Get("BrokerConnectRejected"));
                 }
-            }
-            catch (AggregateException ex)
-            {
-                if (mqttClient != null)
+                var subscription = await current.Client.SubscribeAsync(
+                    new MqttTopicFilterBuilder().WithTopic(current.ClientId).WithExactlyOnceQoS().Build(),
+                    deadline.Token).ConfigureAwait(false);
+                if (subscription.Items.Any(item => (int)item.ResultCode >= 128))
                 {
-                    mqttClient.DisconnectAsync().Wait(10000);
+                    throw new IOException(Resources.Get("BrokerSubscribeRejected"));
                 }
-                mqttClient = null;
-                throw ex.InnerException;
-            }
-            if (AsyncWaitTime == 0)
-            {
-                replyReceivedEvent.WaitOne();
-            }
-            else
-            {
-                if (!replyReceivedEvent.WaitOne((int)AsyncWaitTime * 1000))
+                await ExchangeAsync(current, MessageType.Open, deadline.Token).ConfigureAwait(false);
+                lock (admission)
                 {
-                    throw new TimeoutException(Resources.InvalidTopic + "'" + topic + "'.");
+                    deadline.Token.ThrowIfCancellationRequested();
+                    if (!ReferenceEquals(session, current) || current.Closing is not null) { throw new OperationCanceledException(current.Stop.Token); }
+                    ReceiveBuffer.Open();
+                    current.Open = true;
+                    NotifyState(current, MediaState.Open);
+                    current.Ready.TrySetResult();
+                }
+                current.Stop.Token.ThrowIfCancellationRequested();
+            }
+            catch (Exception error)
+            {
+                failure = error is OperationCanceledException && !cancellationToken.IsCancellationRequested && !current.Stop.IsCancellationRequested
+                    ? new TimeoutException(string.Format(CultureInfo.CurrentCulture, Resources.Get("BridgeReplyTimeout"), current.Settings.Topic), error)
+                    : error;
+            }
+        }
+        current.OpenDone.TrySetResult();
+        if (failure is not null)
+        {
+            await CloseSessionAsync(current).ConfigureAwait(false);
+            ExceptionDispatchInfo.Capture(failure).Throw();
+        }
+    }
+
+    /// <summary>Builds a cancellable operation deadline without overflowing millisecond-based timer limits.</summary>
+    /// <param name="token">The operation or connection lifetime token.</param>
+    /// <param name="seconds">The timeout in seconds, or zero for no deadline.</param>
+    /// <returns>A linked token source owned by the caller.</returns>
+    private static CancellationTokenSource CreateDeadline(CancellationToken token, uint seconds)
+    {
+        var result = CancellationTokenSource.CreateLinkedTokenSource(token);
+        if (seconds != 0) { result.CancelAfter(TimeSpan.FromMilliseconds(Math.Min((double)seconds * 1000, uint.MaxValue - 1d))); }
+        return result;
+    }
+
+    /// <summary>Allocates and remembers a bounded request identifier for this connection.</summary>
+    /// <param name="current">The session whose replies will be accepted.</param>
+    /// <returns>A nonzero wire message identifier.</returns>
+    private ushort NextId(Session current)
+    {
+        lock (admission)
+        {
+            if (++messageId == 0) { ++messageId; }
+            lock (current.Replies)
+            {
+                current.Accepted.Add(messageId);
+                current.History.Enqueue(messageId);
+                if (current.History.Count > 256) { current.Accepted.Remove(current.History.Dequeue()); }
+            }
+            return messageId;
+        }
+    }
+
+    /// <summary>Publishes an opening or closing command and waits for its exact acknowledgement.</summary>
+    /// <param name="current">The session carrying the control request.</param>
+    /// <param name="type">The expected control acknowledgement type.</param>
+    /// <param name="token">Cancels the control exchange.</param>
+    /// <returns>Completion after the corresponding bridge acknowledgement.</returns>
+    private async Task ExchangeAsync(Session current, MessageType type, CancellationToken token)
+    {
+        ushort id = NextId(current);
+        if (type == MessageType.Open)
+        {
+            lock (current.Replies) { current.OpenId = id; current.OpenPublished = true; }
+        }
+        var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        lock (current.Replies) { current.Pending.Add(id, (type, completion)); }
+        try
+        {
+            await PublishAsync(current, new GXMessage { id = id, type = (int)type, sender = current.ClientId }, token).ConfigureAwait(false);
+            await completion.Task.WaitAsync(token).ConfigureAwait(false);
+        }
+        finally { lock (current.Replies) { current.Pending.Remove(id); } }
+    }
+
+    /// <summary>Publishes a bounded JSON protocol message with broker acknowledgement checking.</summary>
+    /// <param name="current">The native session used by this publish.</param>
+    /// <param name="message">The existing Gurux wire message.</param>
+    /// <param name="token">Cancels publishing.</param>
+    /// <returns>Completion after MQTT accepts the publish.</returns>
+    private static async Task PublishAsync(Session current, GXMessage message, CancellationToken token)
+    {
+        var packet = new MqttApplicationMessageBuilder().WithTopic(current.Settings.Topic)
+            .WithPayload(JsonSerializer.SerializeToUtf8Bytes(message, MqttJsonContext.Default.GXMessage))
+            .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.ExactlyOnce).Build();
+        var result = await current.Client.PublishAsync(packet, token).ConfigureAwait(false);
+        if ((int)result.ReasonCode >= 128) { throw new IOException(Resources.Get("BrokerPublishRejected")); }
+    }
+
+    /// <summary>Validates and queues protocol input without awaiting application code inside MQTTnet dispatch.</summary>
+    /// <param name="current">The originating connection session.</param>
+    /// <param name="args">The broker packet and exact reply topic.</param>
+    /// <returns>An already completed task after bounded enqueue or control acknowledgement.</returns>
+    private Task HandleMessageAsync(Session current, MqttApplicationMessageReceivedEventArgs args)
+    {
+        try
+        {
+            lock (admission) { if (!ReferenceEquals(session, current)) { return Task.CompletedTask; } }
+            var packet = args.ApplicationMessage;
+            if (packet.Topic != current.ClientId || packet.Retain) { return Task.CompletedTask; }
+            var payload = packet.Payload;
+            if (payload.Length > MaximumFrameBytes * 2 + 4096) { throw new IOException(Resources.Get("PayloadTooLarge")); }
+            GXMessage message = JsonSerializer.Deserialize(payload.ToArray(), MqttJsonContext.Default.GXMessage)
+                ?? throw new IOException(Resources.Get("InvalidBridgeMessage"));
+            if (message.sender != current.Settings.Topic) { return Task.CompletedTask; }
+            lock (current.Replies)
+            {
+                if (message.id != current.OpenId && !current.Accepted.Contains(message.id)) { return Task.CompletedTask; }
+                if (current.Pending.TryGetValue(message.id, out var pending))
+                {
+                    if (message.type == (int)MessageType.Exception)
+                    {
+                        pending.Completion.TrySetException(new IOException(message.exception ?? Resources.Get("BridgeRequestFailed")));
+                        return Task.CompletedTask;
+                    }
+                    if (message.type == (int)pending.Type)
+                    {
+                        pending.Completion.TrySetResult();
+                        return Task.CompletedTask;
+                    }
                 }
             }
-            if (lastException != null)
+            if (message.type == (int)MessageType.Receive || message.type == (int)MessageType.Exception || message.type == (int)MessageType.Close)
             {
-                throw new Exception(lastException);
+                if (!current.Stop.IsCancellationRequested && !current.Inbox.Writer.TryWrite(message))
+                {
+                    throw new IOException(Resources.Get("ReceiveQueueFull"));
+                }
             }
         }
+        catch (Exception error) { StopFailedSession(current, error); }
+        return Task.CompletedTask;
+    }
 
-        /// <inheritdoc />
-        public bool Receive<T>(ReceiveParameters<T> args)
+    /// <summary>Delivers validated packets on an independent worker with generation-aware cancellation.</summary>
+    /// <param name="current">The session owning the bounded packet queue.</param>
+    /// <returns>Completion after all callbacks stop for this connection.</returns>
+    private async Task DispatchAsync(Session current)
+    {
+        Session? previous = callbackOwner.Value;
+        callbackOwner.Value = current;
+        try
         {
-            if (!IsOpen)
+            await current.Ready.Task.WaitAsync(current.Stop.Token).ConfigureAwait(false);
+            await foreach (GXMessage message in current.Inbox.Reader.ReadAllAsync(current.Stop.Token).ConfigureAwait(false))
             {
-                throw new InvalidOperationException(Resources.MediaIsClosed);
-            }
-            return syncBase.Receive(args);
-        }
-
-        /// <summary>
-        /// Resets BytesReceived and BytesSent counters.
-        /// </summary>
-        /// <seealso cref="BytesSent">BytesSent</seealso>
-        /// <seealso cref="BytesReceived">BytesReceived</seealso>
-        public void ResetByteCounters()
-        {
-            BytesSent = BytesReceived = 0;
-        }
-
-        /// <inheritdoc />
-        public void Send(object data)
-        {
-            (this as IGXMedia).Send(data, null);
-        }
-
-        void IGXMedia.Send(object data, string receiver)
-        {
-            byte[] tmp = (byte[])data;
-            if (tmp != null)
-            {
-                BytesSent += (ulong)tmp.Length;
-                GXMessage msg = new GXMessage() { id = MessageId, type = (int)MessageType.Send, sender = clientId, frame = Common.GXCommon.ToHex(tmp) };
-                PublishMessageAsync(msg).Wait();
+                current.Stop.Token.ThrowIfCancellationRequested();
+                if (message.type != (int)MessageType.Receive)
+                {
+                    throw new IOException(message.exception ?? Resources.Get("BridgeDisconnected"));
+                }
+                string hex = message.frame ?? string.Empty;
+                if (hex.Length > MaximumFrameBytes * 3) { throw new IOException(Resources.Get("PayloadTooLarge")); }
+                byte[] data = GXCommon.HexToBytes(hex);
+                if (data.Length > MaximumFrameBytes) { throw new IOException(Resources.Get("PayloadTooLarge")); }
+                PublishReceived(data, current.Settings.Topic);
             }
         }
+        catch (OperationCanceledException) when (current.Stop.IsCancellationRequested) { }
+        catch (Exception error) { StopFailedSession(current, error); }
+        finally { callbackOwner.Value = previous; }
+    }
 
-        /// <inheritdoc />
-        public uint AsyncWaitTime
+    /// <inheritdoc/>
+    public override async ValueTask SendAsync(ReadOnlyMemory<byte> data, string? receiver = null, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        if (data.Length > MaximumFrameBytes) { throw new ArgumentException(Resources.Get("PayloadTooLarge"), nameof(data)); }
+        Session current;
+        CancellationToken stop;
+        lock (admission)
         {
-            get;
-            set;
-        }
-
-        /// <inheritdoc />
-        public EventWaitHandle AsyncWaitHandle
-        {
-            get
+            current = session is { Open: true, Closing: null } active ? active
+                : throw new InvalidOperationException(Resources.Get("MediaIsClosed"));
+            if (receiver is not null && receiver != current.Settings.Topic)
             {
-                return replyReceivedEvent;
+                throw new ArgumentException(Resources.Get("InvalidTopic"), nameof(receiver));
             }
+            stop = current.Stop.Token;
         }
-
-        public uint ReceiveDelay
+        byte[] owned = data.ToArray();
+        using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, stop);
+        using var deadline = CreateDeadline(linked.Token, current.Settings.AsyncWaitTime);
+        bool entered = false;
+        try
         {
-            get;
-            set;
+            await current.SendLock.WaitAsync(deadline.Token).ConfigureAwait(false);
+            entered = true;
+            deadline.Token.ThrowIfCancellationRequested();
+            await PublishAsync(current, new GXMessage
+            {
+                id = NextId(current), type = (int)MessageType.Send,
+                sender = current.ClientId, frame = GXCommon.ToHex(owned, false)
+            }, deadline.Token).ConfigureAwait(false);
+            AddBytesSent(owned.Length);
         }
+        catch (OperationCanceledException error) when (!linked.IsCancellationRequested)
+        {
+            throw new TimeoutException(Resources.Get("PublishTimeout"), error);
+        }
+        finally { if (entered) { current.SendLock.Release(); } }
+    }
+
+    /// <summary>Records the first native failure and starts fully tracked shutdown outside the MQTT callback.</summary>
+    /// <param name="current">The failing connection session.</param>
+    /// <param name="error">The error exposed to pending requests and subscribers.</param>
+    private void StopFailedSession(Session current, Exception error)
+    {
+        lock (admission)
+        {
+            if (!ReferenceEquals(session, current) || current.Closing is not null) { return; }
+            current.Failure ??= error;
+            lock (current.Replies)
+            {
+                foreach (var pending in current.Pending.Values) { pending.Completion.TrySetException(error); }
+            }
+            _ = CloseSessionAsync(current);
+        }
+    }
+
+    /// <inheritdoc/>
+    public override Task CloseAsync()
+    {
+        lock (admission)
+        {
+            return session is null ? Task.CompletedTask : CloseSessionAsync(session);
+        }
+    }
+
+    /// <summary>Starts one shutdown operation and avoids awaiting a callback dispatcher's own completion.</summary>
+    /// <param name="current">The owned session to stop.</param>
+    /// <returns>Tracked shutdown, or immediate completion for a reentrant callback on this session.</returns>
+    private Task CloseSessionAsync(Session current)
+    {
+        lock (admission)
+        {
+            if (current.Closing is null)
+            {
+                current.Open = false;
+                current.Stop.Cancel();
+                ReceiveBuffer.Close();
+                current.Inbox.Writer.TryComplete();
+                current.Closing = Task.Run(() => CloseCoreAsync(current));
+            }
+            return ReferenceEquals(callbackOwner.Value, current) ? Task.CompletedTask : current.Closing;
+        }
+    }
+
+    /// <summary>Waits for opening and sends, bounds remote cleanup, disposes the client and then closes shared state.</summary>
+    /// <param name="current">The session retained until cleanup completes.</param>
+    /// <returns>Completion after native client and receive dispatcher cleanup.</returns>
+    private async Task CloseCoreAsync(Session current)
+    {
+        await current.OpenDone.Task.ConfigureAwait(false);
+        Session? previous = callbackOwner.Value;
+        callbackOwner.Value = current;
+        try
+        {
+            try { NotifyState(current, MediaState.Closing); }
+            catch (Exception) { /* A state observer must not skip the remote close handshake. */ }
+            if (current.Failure is not null)
+            {
+                try { ReportError(current.Failure); }
+                catch (Exception) { /* Observer failures must not prevent transport cleanup. */ }
+            }
+            await current.SendLock.WaitAsync().ConfigureAwait(false);
+            try
+            {
+                if (current.Client.IsConnected)
+                {
+                    using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(
+                        current.Settings.AsyncWaitTime == 0 ? 10 : Math.Min(10, current.Settings.AsyncWaitTime)));
+                    if (current.OpenPublished)
+                    {
+                        try { await ExchangeAsync(current, MessageType.Close, deadline.Token).ConfigureAwait(false); }
+                        catch (Exception) { /* A missing bridge must not prevent local shutdown. */ }
+                    }
+                    try
+                    {
+                        await current.Client.DisconnectAsync(new MqttClientDisconnectOptionsBuilder().Build(), deadline.Token).ConfigureAwait(false);
+                    }
+                    catch (Exception) { /* Native disposal below also disconnects failed brokers. */ }
+                }
+            }
+            finally { current.SendLock.Release(); }
+        }
+        finally
+        {
+            current.Client.Dispose();
+            await current.Worker.ConfigureAwait(false);
+            lock (admission)
+            {
+                if (ReferenceEquals(session, current))
+                {
+                    session = null;
+                    try { SetState(MediaState.Closed); }
+                    catch (Exception) { /* Cleanup is complete even if a state observer fails. */ }
+                }
+            }
+            current.Stop.Dispose();
+            callbackOwner.Value = previous;
+        }
+    }
+
+    /// <summary>Raises lifecycle notifications under callback ownership so reentrant close cannot deadlock.</summary>
+    /// <param name="current">The session whose transition is being announced.</param>
+    /// <param name="state">The lifecycle transition to publish.</param>
+    private void NotifyState(Session current, MediaState state)
+    {
+        Session? previous = callbackOwner.Value;
+        callbackOwner.Value = current;
+        try { SetState(state); }
+        finally { callbackOwner.Value = previous; }
     }
 }

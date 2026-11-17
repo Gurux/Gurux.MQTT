@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="Title" xml:space="preserve"><value>Media settings</value></data>
+  <data name="Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="AlreadyShowing" xml:space="preserve"><value>This editor is already showing settings.</value></data>
+  <data name="ParentType" xml:space="preserve"><value>The parent must be an AvaloniaMediaWindow.</value></data>
+  <data name="OwnerVisible" xml:space="preserve"><value>Show the owner window before editing settings.</value></data>
+  <data name="CloseBeforeEdit" xml:space="preserve"><value>Close the media before editing settings.</value></data>
+  <data name="Conflict" xml:space="preserve"><value>The media settings changed while this form was open. Reopen the form.</value></data>
+  <data name="Unsupported" xml:space="preserve"><value>This editor does not support the supplied media type.</value></data>
+  <data name="NumberError" xml:space="preserve"><value>{0} must be a whole number.</value></data>
+  <data name="ChoiceError" xml:space="preserve"><value>Select {0}.</value></data>
+  <data name="Timeout" xml:space="preserve"><value>Response timeout (seconds)</value></data>
+  <data name="Port" xml:space="preserve"><value>Port</value></data>
+  <data name="InvalidSettings" xml:space="preserve"><value>Settings could not be saved. Check the values and ensure the media remains closed and unchanged.</value></data>
+  <data name="BrokerAddress" xml:space="preserve"><value>Broker address</value></data>
+  <data name="Topic" xml:space="preserve"><value>Topic</value></data>
+  <data name="ClientId" xml:space="preserve"><value>Client ID</value></data>
+</root>

@@ -1,34 +1,30 @@
-﻿//
+﻿// --------------------------------------------------------------------------
+// Gurux Ltd
+//
+// Copyright (c) Gurux Ltd.
+//
+// This file is part of Gurux Device Framework.
+//
+// Commit: $Format:%H$
+// Date:   $Format:%cI$
+//
+// This software is available under either of the following licenses:
+//
+// 1. GNU General Public License, version 2 only (GPL-2.0-only).
+//    See the LICENSE file included with this distribution.
+//
+// 2. A commercial license granted by Gurux Ltd under a separate written
+//    agreement. Use under this option requires a valid commercial license
+//    and is governed by the terms of that agreement.
+//
+// If you have not obtained a commercial license from Gurux Ltd,
+// use of this software is governed by GPL-2.0-only.
+//
+// Commercial licensing: https://www.gurux.fi/
+//
+// SPDX-License-Identifier: GPL-2.0-only OR LicenseRef-Gurux-Commercial
 // --------------------------------------------------------------------------
-//  Gurux Ltd
-//
-//
-//
-// Filename:        $HeadURL$
-//
-// Version:         $Revision$,
-//                  $Date$
-//                  $Author$
-//
-// Copyright (c) Gurux Ltd
-//
-//---------------------------------------------------------------------------
-//
-//  DESCRIPTION
-//
-// This file is a part of Gurux Device Framework.
-//
-// Gurux Device Framework is Open Source software; you can redistribute it
-// and/or modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; version 2 of the License.
-// Gurux Device Framework is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-// See the GNU General Public License for more details.
-//
-// This code is licensed under the GNU General Public License v2.
-// Full text may be retrieved at http://www.gnu.org/licenses/gpl-2.0.txt
-//---------------------------------------------------------------------------
+
 using Gurux.Common;
 using MQTTnet;
 using MQTTnet.Server;
@@ -40,10 +36,15 @@ using System.Threading.Tasks;
 
 namespace Gurux.Broker
 {
+    /// <summary>Parses command-line options and runs the MQTT application.</summary>
     class Program
     {
+        /// <summary>Trace verbosity selected by the command-line options.</summary>
         static TraceLevel trace = TraceLevel.Error;
 
+        /// <summary>Parses broker options and runs the application until shutdown is requested.</summary>
+        /// <param name="args">Command-line options selecting broker address, port and trace verbosity.</param>
+        /// <returns>Zero after normal shutdown or handled errors, or one for unsupported options.</returns>
         static async Task<int> Main(string[] args)
         {
             try
@@ -66,7 +67,7 @@ namespace Gurux.Broker
                             }
                             catch (Exception)
                             {
-                                throw new ArgumentException("Invalid trace level option. (Error, Warning, Info, Verbose, Off)");
+                                throw new ArgumentException(global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("InvalidTraceLevel", global::Gurux.Broker.Properties.Resources.Culture));
                             }
                             break;
                         default:
@@ -76,10 +77,10 @@ namespace Gurux.Broker
                 }
                 if (port == 0)
                 {
-                    throw new Exception("Broker port is missing. Example -p 1883");
+                    throw new Exception(global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("BrokerPortRequired", global::Gurux.Broker.Properties.Resources.Culture));
                 }
-                Console.WriteLine("Broker started in port {0}.", port);
-                MqttServer mqttServer = await Run(port);
+                Console.WriteLine(string.Format(System.Globalization.CultureInfo.CurrentCulture, global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("BrokerStarted", global::Gurux.Broker.Properties.Resources.Culture), port));
+                using MqttServer mqttServer = await Run(port);
                 ConsoleKey k;
                 while ((k = Console.ReadKey().Key) != ConsoleKey.Escape)
                 {
@@ -87,29 +88,33 @@ namespace Gurux.Broker
                     {
                         Console.Clear();
                     }
-                    Console.WriteLine("Press Esc to close Broker or delete clear the console.");
+                    Console.WriteLine(global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("BrokerControls", global::Gurux.Broker.Properties.Resources.Culture));
                 }
                 await mqttServer.StopAsync();
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                Console.WriteLine("Press any key to exit.");
+                Console.WriteLine(global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("ExitPrompt", global::Gurux.Broker.Properties.Resources.Culture));
                 Console.ReadLine();
             }
             return 0;
         }
 
+        /// <summary>Writes command-line usage and an example invocation to the console.</summary>
         static void ShowHelp()
         {
-            Console.WriteLine("Gurux.Broker distribute received connections to several servers.");
-            Console.WriteLine("Gurux.Broker -p Port numer");
-            Console.WriteLine(" -p \tport number.");
-            Console.WriteLine(" -t [Error, Warning, Info, Verbose] Trace messages.");
-            Console.WriteLine("Example:");
-            Console.WriteLine("Gurux.Broker -p 1883");
+            Console.WriteLine(global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("BrokerHelpDescription", global::Gurux.Broker.Properties.Resources.Culture));
+            Console.WriteLine(global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("BrokerUsage", global::Gurux.Broker.Properties.Resources.Culture));
+            Console.WriteLine(global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("BrokerPortOption", global::Gurux.Broker.Properties.Resources.Culture));
+            Console.WriteLine(global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("TraceOption", global::Gurux.Broker.Properties.Resources.Culture));
+            Console.WriteLine(global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("ExampleHeading", global::Gurux.Broker.Properties.Resources.Culture));
+            Console.WriteLine(global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("BrokerExample", global::Gurux.Broker.Properties.Resources.Culture));
         }
 
+        /// <summary>Creates and starts a broker listening on the requested port.</summary>
+        /// <param name="port">MQTT broker TCP port.</param>
+        /// <returns>A task returning the started MQTT server.</returns>
         static async Task<MqttServer> Run(int port)
         {
             var optionsBuilder = new MqttServerOptionsBuilder()
@@ -118,28 +123,32 @@ namespace Gurux.Broker
             .Build();
             optionsBuilder.DefaultEndpointOptions.IsEnabled = true;
             var mqttServer = new MqttFactory().CreateMqttServer(optionsBuilder);
-            mqttServer.InterceptingPublishAsync += async args =>
+            mqttServer.InterceptingPublishAsync += args =>
             {
                 if (args.ClientId != null)
                 {
                     if (trace == TraceLevel.Verbose)
                     {
-                        Console.WriteLine("### Received message ###");
-                        Console.WriteLine($"+ Topic = {args.ApplicationMessage.Topic}");
-                        Console.WriteLine($"+ Payload = {Encoding.UTF8.GetString(args.ApplicationMessage.Payload)}");
+                        Console.WriteLine(global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("ReceivedMessage", global::Gurux.Broker.Properties.Resources.Culture));
+                        Console.WriteLine(string.Format(System.Globalization.CultureInfo.CurrentCulture, global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("TopicDetail", global::Gurux.Broker.Properties.Resources.Culture), args.ApplicationMessage.Topic));
+                        Console.WriteLine(string.Format(System.Globalization.CultureInfo.CurrentCulture, global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("PayloadDetail", global::Gurux.Broker.Properties.Resources.Culture), Encoding.UTF8.GetString(args.ApplicationMessage.PayloadSegment.AsSpan())));
                     }
                 }
+                return Task.CompletedTask;
             };
             mqttServer.ClientConnectedAsync += OnClientConnectedAsync;
             await mqttServer.StartAsync();
             return mqttServer;
         }
 
+        /// <summary>Writes a client connection notification when verbose tracing is enabled.</summary>
+        /// <param name="arg">Details of the newly connected MQTT client.</param>
+        /// <returns>An already completed task after handling the notification.</returns>
         private static Task OnClientConnectedAsync(ClientConnectedEventArgs arg)
         {
             if (trace == TraceLevel.Verbose)
             {
-                Console.WriteLine($"### {arg.ClientId} Connected ###");
+                Console.WriteLine(string.Format(System.Globalization.CultureInfo.CurrentCulture, global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("ClientConnected", global::Gurux.Broker.Properties.Resources.Culture), arg.ClientId));
             }
             return Task.CompletedTask;
         }

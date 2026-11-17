@@ -159,4 +159,59 @@
   <data name="MediaIsClosed" xml:space="preserve">
     <value>Media is closed.</value>
   </data>
+  <data name="TopicReplyTimeout" xml:space="preserve">
+    <value>Invalid topic &apos;{0}&apos;.</value>
+  </data>
+  <data name="ReceiveConditionsRequired" xml:space="preserve">
+    <value>Either Count or Eop must be set.</value>
+  </data>
+  <data name="CommunicationCategory" xml:space="preserve">
+    <value>Communication</value>
+  </data>
+  <data name="TopicDescription" xml:space="preserve">
+    <value>Retrieves or sets used topic.</value>
+  </data>
+  <data name="ClientIdDescription" xml:space="preserve">
+    <value>Retrieves or sets used client ID.</value>
+  </data>
+  <data name="ServerAddressDescription" xml:space="preserve">
+    <value>MQTT server address.</value>
+  </data>
+  <data name="PortDescription" xml:space="preserve">
+    <value>MQTT server port number.</value>
+  </data>
+  <data name="ReceivedEventDescription" xml:space="preserve">
+    <value>GXNet component sends received data through this method.</value>
+  </data>
+  <data name="ErrorEventDescription" xml:space="preserve">
+    <value>Errors that occur after the connection is established, are sent through this method.</value>
+  </data>
+  <data name="StateEventDescription" xml:space="preserve">
+    <value>Media component sends notification, when its state changes.</value>
+  </data>
+  <data name="ClientConnectedEventDescription" xml:space="preserve">
+    <value>Called when the client is establishing a connection with a Net Server.</value>
+  </data>
+  <data name="ClientDisconnectedEventDescription" xml:space="preserve">
+    <value>Called when the client has been disconnected from the network server.</value>
+  </data>
+  <data name="TraceEventDescription" xml:space="preserve">
+    <value>Called when the Media is sending or receiving data.</value>
+  </data>
+  <data name="ClientIdLabel" xml:space="preserve">
+    <value>Client ID</value>
+  </data>
+  <data name="CloseBeforeSettings" xml:space="preserve"><value>Close the media before changing settings.</value></data>
+  <data name="LifecycleInProgress" xml:space="preserve"><value>A media lifecycle operation is already in progress.</value></data>
+  <data name="BrokerDisconnected" xml:space="preserve"><value>The MQTT broker disconnected.</value></data>
+  <data name="BrokerConnectRejected" xml:space="preserve"><value>The MQTT broker rejected the connection.</value></data>
+  <data name="BrokerSubscribeRejected" xml:space="preserve"><value>The MQTT broker rejected the reply subscription.</value></data>
+  <data name="BrokerPublishRejected" xml:space="preserve"><value>The MQTT broker rejected the publish.</value></data>
+  <data name="BridgeReplyTimeout" xml:space="preserve"><value>The bridge topic {0} did not acknowledge the request before the timeout.</value></data>
+  <data name="PayloadTooLarge" xml:space="preserve"><value>The MQTT payload exceeds the supported size.</value></data>
+  <data name="InvalidBridgeMessage" xml:space="preserve"><value>The bridge returned an invalid message.</value></data>
+  <data name="BridgeRequestFailed" xml:space="preserve"><value>The bridge request failed.</value></data>
+  <data name="ReceiveQueueFull" xml:space="preserve"><value>The MQTT receive queue is full.</value></data>
+  <data name="BridgeDisconnected" xml:space="preserve"><value>The bridge closed the media connection.</value></data>
+  <data name="PublishTimeout" xml:space="preserve"><value>The MQTT publish did not complete before the timeout.</value></data>
 </root>

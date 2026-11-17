@@ -1,34 +1,29 @@
-﻿//
+﻿// --------------------------------------------------------------------------
+// Gurux Ltd
+//
+// Copyright (c) Gurux Ltd.
+//
+// This file is part of Gurux Device Framework.
+//
+// Commit: $Format:%H$
+// Date:   $Format:%cI$
+//
+// This software is available under either of the following licenses:
+//
+// 1. GNU General Public License, version 2 only (GPL-2.0-only).
+//    See the LICENSE file included with this distribution.
+//
+// 2. A commercial license granted by Gurux Ltd under a separate written
+//    agreement. Use under this option requires a valid commercial license
+//    and is governed by the terms of that agreement.
+//
+// If you have not obtained a commercial license from Gurux Ltd,
+// use of this software is governed by GPL-2.0-only.
+//
+// Commercial licensing: https://www.gurux.fi/
+//
+// SPDX-License-Identifier: GPL-2.0-only OR LicenseRef-Gurux-Commercial
 // --------------------------------------------------------------------------
-//  Gurux Ltd
-//
-//
-//
-// Filename:        $HeadURL$
-//
-// Version:         $Revision$,
-//                  $Date$
-//                  $Author$
-//
-// Copyright (c) Gurux Ltd
-//
-//---------------------------------------------------------------------------
-//
-//  DESCRIPTION
-//
-// This file is a part of Gurux Device Framework.
-//
-// Gurux Device Framework is Open Source software; you can redistribute it
-// and/or modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; version 2 of the License.
-// Gurux Device Framework is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-// See the GNU General Public License for more details.
-//
-// This code is licensed under the GNU General Public License v2.
-// Full text may be retrieved at http://www.gnu.org/licenses/gpl-2.0.txt
-//---------------------------------------------------------------------------
 
 using Gurux.Common;
 using System;
@@ -36,16 +31,22 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace Gurux.Broker
 {
+    /// <summary>Parses command-line options and runs the MQTT application.</summary>
     class Program
     {
-        static int Main(string[] args)
+        /// <summary>Parses broker options and runs the application until shutdown is requested.</summary>
+        /// <param name="args">Command-line options selecting broker address, port and trace verbosity.</param>
+        /// <returns>Zero after normal shutdown or handled errors, or one for unsupported options.</returns>
+        static async Task<int> Main(string[] args)
         {
             try
             {
-                Connection settings = Gurux.Common.JSon.GXJsonParser.Load<Connection>(Path.Combine(Directory.GetCurrentDirectory(), "connections.json"));
+                Connection settings = File.Exists("connections.json") ? JsonSerializer.Deserialize<Connection>(await File.ReadAllTextAsync("connections.json")) : null;
                 if (settings == null)
                 {
                     settings = new Connection();
@@ -66,7 +67,7 @@ namespace Gurux.Broker
                     m.Type = "Serial";
                     m.Settings = "<Port>COM1</Port>";
                     settings.Connections.Add(m);
-                    Gurux.Common.JSon.GXJsonParser.Save(settings, Path.Combine(Directory.GetCurrentDirectory(), "connections.json"));
+                    await File.WriteAllTextAsync("connections.json", JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true }));
                     return 0;
                 }
                 string host = settings.BrokerAddress;
@@ -93,7 +94,7 @@ namespace Gurux.Broker
                             }
                             catch (Exception)
                             {
-                                throw new ArgumentException("Invalid trace level option. (Error, Warning, Info, Verbose, Off)");
+                                throw new ArgumentException(global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("InvalidTraceLevel", global::Gurux.Broker.Properties.Resources.Culture));
                             }
                             break;
                         default:
@@ -103,16 +104,16 @@ namespace Gurux.Broker
                 }
                 if (host == "")
                 {
-                    throw new Exception("Broker address is missing. Example -h localhost");
+                    throw new Exception(global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("BrokerAddressRequired", global::Gurux.Broker.Properties.Resources.Culture));
                 }
                 if (port == 0)
                 {
-                    throw new Exception("Broker port is missing. Example -p 1883");
+                    throw new Exception(global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("BrokerPortRequired", global::Gurux.Broker.Properties.Resources.Culture));
                 }
-                Console.WriteLine("Connecting to the Broker in address: {0}:{1} ", host, port);
-                var cts = new CancellationTokenSource();
-                GXMeter.Start(trace, host, port, settings, cts.Token);
-                Console.WriteLine("Press Esc to close application or delete clear the console.");
+                Console.WriteLine(string.Format(System.Globalization.CultureInfo.CurrentCulture, global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("ConnectingToBroker", global::Gurux.Broker.Properties.Resources.Culture), host, port));
+                using var cts = new CancellationTokenSource();
+                Task bridge = GXMeter.RunAsync(trace, host, port, settings, cts.Token);
+                Console.WriteLine(global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("BridgeControls", global::Gurux.Broker.Properties.Resources.Culture));
                 ConsoleKey k;
                 while ((k = Console.ReadKey().Key) != ConsoleKey.Escape)
                 {
@@ -121,9 +122,10 @@ namespace Gurux.Broker
                         Console.Clear();
                         GXMeter.ShowInformation(settings);
                     }
-                    Console.WriteLine("Press Esc to close application or delete clear the console.");
+                    Console.WriteLine(global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("BridgeControls", global::Gurux.Broker.Properties.Resources.Culture));
                 }
                 cts.Cancel();
+                await bridge;
             }
             catch (AggregateException ex)
             {
@@ -136,15 +138,16 @@ namespace Gurux.Broker
             return 0;
         }
 
+        /// <summary>Writes command-line usage and an example invocation to the console.</summary>
         static void ShowHelp()
         {
-            Console.WriteLine("Gurux.Bridge distribute received connections to several servers.");
-            Console.WriteLine("Gurux.Bridge -h Broker Address -p Broker Port numer");
-            Console.WriteLine(" -h \tBroker IP address.");
-            Console.WriteLine(" -p \tBroker port number.");
-            Console.WriteLine(" -t [Error, Warning, Info, Verbose] Trace messages.");
-            Console.WriteLine("Example:");
-            Console.WriteLine("Gurux.Bridge -h localhost -p 1883");
+            Console.WriteLine(global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("BridgeHelpDescription", global::Gurux.Broker.Properties.Resources.Culture));
+            Console.WriteLine(global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("BridgeUsage", global::Gurux.Broker.Properties.Resources.Culture));
+            Console.WriteLine(global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("BridgeHostOption", global::Gurux.Broker.Properties.Resources.Culture));
+            Console.WriteLine(global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("BridgePortOption", global::Gurux.Broker.Properties.Resources.Culture));
+            Console.WriteLine(global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("TraceOption", global::Gurux.Broker.Properties.Resources.Culture));
+            Console.WriteLine(global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("ExampleHeading", global::Gurux.Broker.Properties.Resources.Culture));
+            Console.WriteLine(global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("BridgeExample", global::Gurux.Broker.Properties.Resources.Culture));
         }
     }
 }

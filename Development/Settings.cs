@@ -1,34 +1,30 @@
-//
 // --------------------------------------------------------------------------
-//  Gurux Ltd
+// Gurux Ltd
 //
+// Copyright (c) Gurux Ltd.
 //
+// This file is part of Gurux Device Framework.
 //
-// Filename:        $HeadURL$
+// Commit: $Format:%H$
+// Date:   $Format:%cI$
 //
-// Version:         $Revision$,
-//                  $Date$
-//                  $Author$
+// This software is available under either of the following licenses:
 //
-// Copyright (c) Gurux Ltd
+// 1. GNU General Public License, version 2 only (GPL-2.0-only).
+//    See the LICENSE file included with this distribution.
 //
-//---------------------------------------------------------------------------
+// 2. A commercial license granted by Gurux Ltd under a separate written
+//    agreement. Use under this option requires a valid commercial license
+//    and is governed by the terms of that agreement.
 //
-//  DESCRIPTION
+// If you have not obtained a commercial license from Gurux Ltd,
+// use of this software is governed by GPL-2.0-only.
 //
-// This file is a part of Gurux Device Framework.
+// Commercial licensing: https://www.gurux.fi/
 //
-// Gurux Device Framework is Open Source software; you can redistribute it
-// and/or modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; version 2 of the License.
-// Gurux Device Framework is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-// See the GNU General Public License for more details.
-//
-// This code is licensed under the GNU General Public License v2.
-// Full text may be retrieved at http://www.gnu.org/licenses/gpl-2.0.txt
-//---------------------------------------------------------------------------
+// SPDX-License-Identifier: GPL-2.0-only OR LicenseRef-Gurux-Commercial
+// --------------------------------------------------------------------------
+
 using System;
 using System.ComponentModel;
 using System.Reflection;
@@ -38,9 +34,12 @@ using Gurux.MQTT.Properties;
 
 namespace Gurux.MQTT
 {
+    /// <summary>Edits MQTT broker, topic and client settings in a Windows Forms property page.</summary>
     partial class Settings : Form, IGXPropertyPage, INotifyPropertyChanged
     {
+        /// <summary>MQTT media instance whose settings are edited by this page.</summary>
         GXMqtt target;
+        /// <summary>Subscribers notified when an editor field changes.</summary>
         PropertyChangedEventHandler propertyChanged;
 
         /// <summary>
@@ -58,14 +57,19 @@ namespace Gurux.MQTT
             }
         }
 
+        /// <summary>Creates an editor bound to the supplied MQTT media.</summary>
+        /// <param name="target">MQTT media instance whose settings are read or edited.</param>
         public Settings(GXMqtt target)
         {
             this.target = target;
             InitializeComponent();
+            Text = Resources.SettingsTxt;
+            ClientIdLbl.Text = Resources.ResourceManager.GetString("ClientIdLabel", Resources.Culture);
         }
 
 #region Assembly Attribute Accessors
 
+        /// <summary>Gets the executing assembly title or its filename when no title is specified.</summary>
         public string AssemblyTitle
         {
             get
@@ -83,6 +87,7 @@ namespace Gurux.MQTT
             }
         }
 
+        /// <summary>Gets the executing assembly version as text.</summary>
         public string AssemblyVersion
         {
             get
@@ -91,6 +96,7 @@ namespace Gurux.MQTT
             }
         }
 
+        /// <summary>Gets the executing assembly description, or an empty string when unspecified.</summary>
         public string AssemblyDescription
         {
             get
@@ -104,6 +110,7 @@ namespace Gurux.MQTT
             }
         }
 
+        /// <summary>Gets the executing assembly product name, or an empty string when unspecified.</summary>
         public string AssemblyProduct
         {
             get
@@ -117,6 +124,7 @@ namespace Gurux.MQTT
             }
         }
 
+        /// <summary>Gets the executing assembly copyright notice, or an empty string when unspecified.</summary>
         public string AssemblyCopyright
         {
             get
@@ -130,6 +138,7 @@ namespace Gurux.MQTT
             }
         }
 
+        /// <summary>Gets the executing assembly company name, or an empty string when unspecified.</summary>
         public string AssemblyCompany
         {
             get
@@ -143,6 +152,7 @@ namespace Gurux.MQTT
             }
         }
 
+        /// <summary>Gets or sets whether the staged settings contain unapplied changes.</summary>
         public bool Dirty
         {
             get;
@@ -153,6 +163,7 @@ namespace Gurux.MQTT
 
 #region IGXPropertyPage Members
 
+        /// <summary>Loads localized labels and current media settings into the editor controls.</summary>
         void IGXPropertyPage.Initialize()
         {
             this.TopicLbl.Text = Resources.TopicTxt;
@@ -170,6 +181,7 @@ namespace Gurux.MQTT
             Dirty = false;
         }
 
+        /// <summary>Applies the staged broker, port, topic and client identifier to the media.</summary>
         void IGXPropertyPage.Apply()
         {
             target.Port = Convert.ToInt32(this.PortTB.Text);
@@ -181,6 +193,9 @@ namespace Gurux.MQTT
 
 #endregion
 
+        /// <summary>Marks the page dirty and notifies subscribers that the broker address changed.</summary>
+        /// <param name="sender">Object or transport identification that raised the notification.</param>
+        /// <param name="e">Event data supplied by the editor control.</param>
         private void IPAddressTB_TextChanged(object sender, EventArgs e)
         {
             Dirty = true;
@@ -190,6 +205,9 @@ namespace Gurux.MQTT
             }
         }
 
+        /// <summary>Marks the page dirty and notifies subscribers that the broker port changed.</summary>
+        /// <param name="sender">Object or transport identification that raised the notification.</param>
+        /// <param name="e">Event data supplied by the editor control.</param>
         private void PortTB_TextChanged(object sender, EventArgs e)
         {
             Dirty = true;
@@ -199,6 +217,9 @@ namespace Gurux.MQTT
             }
         }
 
+        /// <summary>Marks the page dirty and notifies subscribers that the topic changed.</summary>
+        /// <param name="sender">Object or transport identification that raised the notification.</param>
+        /// <param name="e">Event data supplied by the editor control.</param>
         private void TopicTb_TextChanged(object sender, EventArgs e)
         {
             Dirty = true;
@@ -208,6 +229,9 @@ namespace Gurux.MQTT
             }
         }
 
+        /// <summary>Marks the page dirty and notifies subscribers that the client identifier changed.</summary>
+        /// <param name="sender">Object or transport identification that raised the notification.</param>
+        /// <param name="e">Event data supplied by the editor control.</param>
         private void ClientIdTb_TextChanged(object sender, EventArgs e)
         {
             Dirty = true;

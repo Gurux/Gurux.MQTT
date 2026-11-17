@@ -1,34 +1,29 @@
-//
 // --------------------------------------------------------------------------
-//  Gurux Ltd
-// 
+// Gurux Ltd
 //
+// Copyright (c) Gurux Ltd.
 //
-// Filename:        $HeadURL$
+// This file is part of Gurux Device Framework.
 //
-// Version:         $Revision$,
-//                  $Date$
-//                  $Author$
+// Commit: $Format:%H$
+// Date:   $Format:%cI$
 //
-// Copyright (c) Gurux Ltd
+// This software is available under either of the following licenses:
 //
-//---------------------------------------------------------------------------
+// 1. GNU General Public License, version 2 only (GPL-2.0-only).
+//    See the LICENSE file included with this distribution.
 //
-//  DESCRIPTION
+// 2. A commercial license granted by Gurux Ltd under a separate written
+//    agreement. Use under this option requires a valid commercial license
+//    and is governed by the terms of that agreement.
 //
-// This file is a part of Gurux Device Framework.
+// If you have not obtained a commercial license from Gurux Ltd,
+// use of this software is governed by GPL-2.0-only.
 //
-// Gurux Device Framework is Open Source software; you can redistribute it
-// and/or modify it under the terms of the GNU General Public License 
-// as published by the Free Software Foundation; version 2 of the License.
-// Gurux Device Framework is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-// See the GNU General Public License for more details.
+// Commercial licensing: https://www.gurux.fi/
 //
-// This code is licensed under the GNU General Public License v2. 
-// Full text may be retrieved at http://www.gnu.org/licenses/gpl-2.0.txt
-//---------------------------------------------------------------------------
+// SPDX-License-Identifier: GPL-2.0-only OR LicenseRef-Gurux-Commercial
+// --------------------------------------------------------------------------
 
 using System;
 using System.Threading;
@@ -36,19 +31,28 @@ using Gurux.Common;
 
 namespace Gurux.Shared
 {
+    /// <summary>Stores incoming bytes and waits for synchronous receive conditions.</summary>
     class GXSynchronousMediaBase
     {
+        /// <summary>Pending transport failure rethrown by synchronous receive operations.</summary>
         internal Exception Exception;
+        /// <summary>Owned storage containing received bytes awaiting consumption.</summary>
         internal byte[] m_Received = null;
+        /// <summary>Signals that new bytes or connection shutdown are available to receivers.</summary>
         internal AutoResetEvent receivedEvent = new AutoResetEvent(false);
+        /// <summary>Serializes access to receive storage.</summary>
         internal readonly object receivedSync = new object();
+        /// <summary>Number of unread bytes, or -1 when the connection is closed.</summary>
         internal int receivedSize;
+        /// <summary>Last scanned offset used to continue end-of-packet searches.</summary>
         internal int lastPosition;
         /// <summary>
         /// Trace level.
         /// </summary>
         public System.Diagnostics.TraceLevel Trace;
 
+        /// <summary>Allocates receive storage with the requested initial capacity.</summary>
+        /// <param name="bufferSize">Initial receive storage capacity in bytes.</param>
         public GXSynchronousMediaBase(int bufferSize)
         {
             m_Received = new byte[bufferSize];
@@ -79,6 +83,10 @@ namespace Gurux.Shared
             }
         }
 
+        /// <summary>Copies a range of source bytes into the receive storage.</summary>
+        /// <param name="data">Payload bytes to copy or publish.</param>
+        /// <param name="index">Offset of the first source byte.</param>
+        /// <param name="count">Number of source values or bytes to process.</param>
         public void AppendData(byte[] data, int index, int count)
         {
             lock (receivedSync)
@@ -95,11 +103,15 @@ namespace Gurux.Shared
             }
         }
 
+        /// <summary>Waits for receive conditions and appends decoded bytes to the supplied reply.</summary>
+        /// <param name="args">Receive conditions and accumulated reply to update.</param>
+        /// <typeparam name="T">Managed reply type supported by the byte conversion helper.</typeparam>
+        /// <returns>Whether the requested receive conditions were satisfied.</returns>
         public bool Receive<T>(ReceiveParameters<T> args)
         {
             if (args.Eop == null && args.Count == 0 && !args.AllData)
             {
-                throw new ArgumentException("Either Count or Eop must be set.");
+                throw new ArgumentException(global::Gurux.MQTT.Properties.Resources.ResourceManager.GetString("ReceiveConditionsRequired", global::Gurux.MQTT.Properties.Resources.Culture));
             }
             int nSize = 0;
             byte[] terminator = null;

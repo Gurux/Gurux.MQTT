@@ -98,4 +98,49 @@
 	<resheader name="writer">
 		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
 	</resheader>
+  <data name="TopicDetail" xml:space="preserve">
+    <value>+ Topic = {0}</value>
+  </data>
+  <data name="PayloadDetail" xml:space="preserve">
+    <value>+ Payload = {0}</value>
+  </data>
+  <data name="ClientConnected" xml:space="preserve">
+    <value>### {0} Connected ###</value>
+  </data>
+  <data name="BrokerExample" xml:space="preserve">
+    <value>Gurux.Broker -p 1883</value>
+  </data>
+  <data name="BrokerUsage" xml:space="preserve">
+    <value>Gurux.Broker -p Port numer</value>
+  </data>
+  <data name="ExitPrompt" xml:space="preserve">
+    <value>Press any key to exit.</value>
+  </data>
+  <data name="InvalidTraceLevel" xml:space="preserve">
+    <value>Invalid trace level option. (Error, Warning, Info, Verbose, Off)</value>
+  </data>
+  <data name="BrokerPortOption" xml:space="preserve">
+    <value> -p 	port number.</value>
+  </data>
+  <data name="BrokerPortRequired" xml:space="preserve">
+    <value>Broker port is missing. Example -p 1883</value>
+  </data>
+  <data name="BrokerControls" xml:space="preserve">
+    <value>Press Esc to close Broker or delete clear the console.</value>
+  </data>
+  <data name="BrokerHelpDescription" xml:space="preserve">
+    <value>Gurux.Broker distribute received connections to several servers.</value>
+  </data>
+  <data name="ReceivedMessage" xml:space="preserve">
+    <value>### Received message ###</value>
+  </data>
+  <data name="TraceOption" xml:space="preserve">
+    <value> -t [Error, Warning, Info, Verbose] Trace messages.</value>
+  </data>
+  <data name="ExampleHeading" xml:space="preserve">
+    <value>Example:</value>
+  </data>
+  <data name="BrokerStarted" xml:space="preserve">
+    <value>Broker started in port {0}.</value>
+  </data>
 </root>

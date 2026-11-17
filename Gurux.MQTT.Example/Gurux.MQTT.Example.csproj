@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <ExampleRoot>$(MSBuildThisFileDirectory)</ExampleRoot>
+    <ExampleTitle>Gurux.MQTT.Example</ExampleTitle>
+    <ExampleId>mqtt</ExampleId>
+    <AssemblyName>Gurux.MQTT.Example</AssemblyName>
+  </PropertyGroup>
+  <Import Project="$(ExampleRoot)/Example.App.props" />
+  <Import Project="$(ExampleRoot)/Example.App.targets" />
+</Project>

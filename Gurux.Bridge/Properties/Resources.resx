@@ -98,4 +98,118 @@
 	<resheader name="writer">
 		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
 	</resheader>
+  <data name="BridgeTopic" xml:space="preserve">
+    <value>Bridge topic: {0}</value>
+  </data>
+  <data name="MediaTopic" xml:space="preserve">
+    <value>Media topic: {0}</value>
+  </data>
+  <data name="TransportSettings" xml:space="preserve">
+    <value>Settings: {0}</value>
+  </data>
+  <data name="UnknownMediaType" xml:space="preserve">
+    <value>Unknown media type.{0}</value>
+  </data>
+  <data name="ReceivedPayload" xml:space="preserve">
+    <value>Received: {0}</value>
+  </data>
+  <data name="TopicDetail" xml:space="preserve">
+    <value>+ Topic = {0}</value>
+  </data>
+  <data name="PayloadDetail" xml:space="preserve">
+    <value>+ Payload = {0}</value>
+  </data>
+  <data name="MessageTypeDetail" xml:space="preserve">
+    <value>+ Type = {0}</value>
+  </data>
+  <data name="QualityOfServiceDetail" xml:space="preserve">
+    <value>+ QoS = {0}</value>
+  </data>
+  <data name="RetainDetail" xml:space="preserve">
+    <value>+ Retain = {0}</value>
+  </data>
+  <data name="SessionConnected" xml:space="preserve">
+    <value>--- Connected with the server. {0}</value>
+  </data>
+  <data name="Disconnected" xml:space="preserve">
+    <value>--- Disconnected from the server. {0}</value>
+  </data>
+  <data name="ReconnectFailed" xml:space="preserve">
+    <value>--- Failed to reconnect to the server. {0}</value>
+  </data>
+  <data name="IecSending" xml:space="preserve">
+    <value>IEC Sending:{0}</value>
+  </data>
+  <data name="IecReceived" xml:space="preserve">
+    <value>IEC received: {0}</value>
+  </data>
+  <data name="MaximumBaudRate" xml:space="preserve">
+    <value>Maximum BaudRate is set to : {0}</value>
+  </data>
+  <data name="CurrentBaudRate" xml:space="preserve">
+    <value>BaudRate is : {0}</value>
+  </data>
+  <data name="MovingToModeE" xml:space="preserve">
+    <value>Moving to mode E. {0}</value>
+  </data>
+  <data name="BridgeReceivedMessage" xml:space="preserve">
+    <value>---Received message</value>
+  </data>
+  <data name="InvalidDeviceResponse" xml:space="preserve">
+    <value>Invalid responce.</value>
+  </data>
+  <data name="UnknownBaudRate" xml:space="preserve">
+    <value>Unknown baud rate.</value>
+  </data>
+  <data name="DeviceReplyTimeout" xml:space="preserve">
+    <value>Failed to receive reply from the device in given time.</value>
+  </data>
+  <data name="Connected" xml:space="preserve">
+    <value>--- Connected with the server. </value>
+  </data>
+  <data name="Reconnecting" xml:space="preserve">
+    <value>--- Try to reconnect to the server.</value>
+  </data>
+  <data name="Subscribed" xml:space="preserve">
+    <value>--- {0} Subscribed. </value>
+  </data>
+  <data name="BrokerAddressRequired" xml:space="preserve">
+    <value>Broker address is missing. Example -h localhost</value>
+  </data>
+  <data name="BridgeHelpDescription" xml:space="preserve">
+    <value>Gurux.Bridge distribute received connections to several servers.</value>
+  </data>
+  <data name="InvalidTraceLevel" xml:space="preserve">
+    <value>Invalid trace level option. (Error, Warning, Info, Verbose, Off)</value>
+  </data>
+  <data name="BridgeExample" xml:space="preserve">
+    <value>Gurux.Bridge -h localhost -p 1883</value>
+  </data>
+  <data name="BrokerPortRequired" xml:space="preserve">
+    <value>Broker port is missing. Example -p 1883</value>
+  </data>
+  <data name="BridgeUsage" xml:space="preserve">
+    <value>Gurux.Bridge -h Broker Address -p Broker Port numer</value>
+  </data>
+  <data name="BridgeControls" xml:space="preserve">
+    <value>Press Esc to close application or delete clear the console.</value>
+  </data>
+  <data name="BridgePortOption" xml:space="preserve">
+    <value> -p 	Broker port number.</value>
+  </data>
+  <data name="TraceOption" xml:space="preserve">
+    <value> -t [Error, Warning, Info, Verbose] Trace messages.</value>
+  </data>
+  <data name="ExampleHeading" xml:space="preserve">
+    <value>Example:</value>
+  </data>
+  <data name="BridgeHostOption" xml:space="preserve">
+    <value> -h 	Broker IP address.</value>
+  </data>
+  <data name="ConnectingToBroker" xml:space="preserve">
+    <value>Connecting to the Broker in address: {0}:{1} </value>
+  </data>
+  <data name="SessionOwned" xml:space="preserve"><value>The meter is already owned by another client.</value></data>
+  <data name="SessionNotOpen" xml:space="preserve"><value>Open the meter before sending data.</value></data>
+  <data name="BridgeQueueFull" xml:space="preserve"><value>The bridge queue is full. The bridge has stopped to prevent message loss.</value></data>
 </root>

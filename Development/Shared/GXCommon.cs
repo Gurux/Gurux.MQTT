@@ -1,34 +1,29 @@
-//
 // --------------------------------------------------------------------------
-//  Gurux Ltd
-// 
+// Gurux Ltd
 //
+// Copyright (c) Gurux Ltd.
 //
-// Filename:        $HeadURL$
+// This file is part of Gurux Device Framework.
 //
-// Version:         $Revision$,
-//                  $Date$
-//                  $Author$
+// Commit: $Format:%H$
+// Date:   $Format:%cI$
 //
-// Copyright (c) Gurux Ltd
+// This software is available under either of the following licenses:
 //
-//---------------------------------------------------------------------------
+// 1. GNU General Public License, version 2 only (GPL-2.0-only).
+//    See the LICENSE file included with this distribution.
 //
-//  DESCRIPTION
+// 2. A commercial license granted by Gurux Ltd under a separate written
+//    agreement. Use under this option requires a valid commercial license
+//    and is governed by the terms of that agreement.
 //
-// This file is a part of Gurux Device Framework.
+// If you have not obtained a commercial license from Gurux Ltd,
+// use of this software is governed by GPL-2.0-only.
 //
-// Gurux Device Framework is Open Source software; you can redistribute it
-// and/or modify it under the terms of the GNU General Public License 
-// as published by the Free Software Foundation; version 2 of the License.
-// Gurux Device Framework is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-// See the GNU General Public License for more details.
+// Commercial licensing: https://www.gurux.fi/
 //
-// This code is licensed under the GNU General Public License v2. 
-// Full text may be retrieved at http://www.gnu.org/licenses/gpl-2.0.txt
-//---------------------------------------------------------------------------
+// SPDX-License-Identifier: GPL-2.0-only OR LicenseRef-Gurux-Commercial
+// --------------------------------------------------------------------------
 
 using System;
 using System.Collections.Generic;
@@ -38,13 +33,14 @@ using System.Runtime.InteropServices;
 
 namespace Gurux.Shared
 {
+	/// <summary>Converts transport payloads between managed values and their byte representations.</summary>
 	class GXCommon
 	{
 		/// <summary>
 		/// Convert object to byte array.
 		/// </summary>
-		/// <param name="value"></param>
-		/// <returns></returns>
+		/// <param name="value">Managed scalar, array or UTF-8 text to encode; null produces an empty array.</param>
+		/// <returns>The native byte representation, UTF-8 text bytes or an empty array.</returns>
 		public static byte[] GetAsByteArray(object value)
 		{
 			if (value == null)
@@ -87,6 +83,15 @@ namespace Gurux.Shared
 			return rawdata;
 		}		
 
+        /// <summary>Decodes a selected byte range into a managed value or array using native marshaling.</summary>
+        /// <param name="byteArray">Source bytes containing the encoded value.</param>
+        /// <param name="type">Managed destination type to construct from the bytes.</param>
+        /// <param name="index">Offset of the first source byte.</param>
+        /// <param name="count">Number of source values or bytes to process.</param>
+        /// <param name="reverse">Whether to reverse the selected bytes before decoding.</param>
+        /// <param name="readBytes">Receives the number of source bytes used to decode the value.</param>
+        /// <returns>The decoded managed value or array.</returns>
+        /// <exception cref="ArgumentException">The source is null, the range is invalid or a scalar count is unsupported.</exception>
         public static object ByteArrayToObject(byte[] byteArray, Type type, int index, int count, bool reverse, out int readBytes)
 		{            
             if (byteArray == null)
@@ -179,7 +184,7 @@ namespace Gurux.Shared
         /// <param name="byteArray">Bytes to parse.</param>
         /// <param name="type">Object type.</param>
         /// <param name="readBytes">Read byte count.</param>
-        /// <returns></returns>
+        /// <returns>The decoded managed value or array.</returns>
         public static object ByteArrayToObject(byte[] byteArray, Type type, out int readBytes)
         {
             return ByteArrayToObject(byteArray, type, 0, byteArray.Length, false, out readBytes);
@@ -191,10 +196,10 @@ namespace Gurux.Shared
         /// index and contains the specified number of elements.
         /// </summary>
         /// <param name="input">Input byte buffer</param>
-        /// <param name="pattern"></param>
+        /// <param name="pattern">Nonempty byte pattern to locate in the input.</param>
         /// <param name="index">Index where search is started.</param>
         /// <param name="count">Maximum search buffer size.</param>
-        /// <returns></returns>
+        /// <returns>The matching offset in the input, or -1 if the candidate does not match.</returns>
 		public static int IndexOf(byte[] input, byte[] pattern, int index, int count)
 		{
 			//If not enought data available.

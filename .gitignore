@@ -170,3 +170,6 @@ Development/TraceAndTestImpact.testsettings
 *.ide
 *.ide-shm
 *.ide-wal
+/Tests
+/UI/Gurux.MQTT.Blazor/Tests
+/Gurux.Bridge/Tests

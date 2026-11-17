@@ -1,52 +1,38 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
- <PropertyGroup>
-    <RootNamespace>Gurux.MQTT</RootNamespace>
-    <AssemblyName>Gurux.MQTT</AssemblyName>
-    <Company>Gurux Ltd</Company>
-    <Authors>Gurux Ltd</Authors>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net11.0;net10.0</TargetFrameworks>
+    <RootNamespace>Gurux.MQTT</RootNamespace><AssemblyName>Gurux.MQTT</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
+    <Company>Gurux Ltd</Company><Authors>Gurux Ltd</Authors>
     <Copyright>Copyright (c) 1998-2025 Gurux Ltd. All rights reserved.</Copyright>
-    <PackageProjectUrl>www.gurux.fi/GXMQTT</PackageProjectUrl>
-    <PackageLicenseUrl></PackageLicenseUrl>
-    <Description>MQTT media component</Description>
+    <PackageProjectUrl>https://www.gurux.fi/GXMQTT</PackageProjectUrl>
+    <Description>Cross-platform asynchronous MQTT media for Gurux bridges.</Description>
     <Version Condition=" '$(BUILD_BUILDNUMBER)' == '' ">0.0.1-local</Version>
     <Version Condition=" '$(BUILD_BUILDNUMBER)' != '' ">$(BUILD_BUILDNUMBER)</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <TargetFrameworks>net6.0-windows;net60;netcoreapp3.1</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/gurux/gurux.mqtt</RepositoryUrl>
-    <PackageTags>Gurux Device Framework MQTT</PackageTags>
-    <PackageId>Gurux.MQTT</PackageId>
-    <ApplicationIcon>mqtt.ico</ApplicationIcon>
+    <PackageTags>Gurux Device Framework MQTT</PackageTags><PackageId>Gurux.MQTT</PackageId>
     <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
+    <PackageIcon>gurux_mqtt.png</PackageIcon><PackageReadmeFile>README.md</PackageReadmeFile>
+    <IncludeSymbols>true</IncludeSymbols><SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems><EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+    <GuruxCommonVersion Condition="'$(GuruxCommonVersion)' == ''">9.0.2611.1302</GuruxCommonVersion>
   </PropertyGroup>
-   <PropertyGroup>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
-  </PropertyGroup>
- <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0-windows'">
-    <TargetFramework>net60-windows</TargetFramework>
-    <UseWindowsForms>true</UseWindowsForms>
-  </PropertyGroup>
-
- <ItemGroup Condition="'$(TargetFramework)' == 'net60' or '$(TargetFramework)' == 'netcoreapp3.1' or '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netstandard2.1'">
-       <Compile Remove="Settings.cs" />
-     <Compile Remove="Settings.Designer.cs" />
-     <Compile Remove="Shared\PropertiesForm.cs" />
-     <Compile Remove="Shared\PropertiesForm.Designer.cs" />
-  </ItemGroup>
- <ItemGroup>
-    <PackageReference Include="Gurux.Common" Version="8.4.2503.602" />
-    <PackageReference Include="NETStandard.Library" Version="2.0.3" />
-    <PackageReference Include="MQTTnet" Version="4.1.4.563" />
- </ItemGroup>
- 
- <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows'">
-    <Reference Include="System.Data.Linq" />
-    <Reference Include="System.Windows.Forms" />
-  </ItemGroup>
-
   <ItemGroup>
-    <None Include="..\gurux_mqtt.png" Pack="true" PackagePath="\" />
+    <Compile Include="GXMqtt.cs;GXMqtt.Settings.cs;MqttSettings.cs;MqttJsonContext.cs;AvailableMediaSettings.cs;Message/GXMessage.cs;Message/MessageType.cs;Properties/Resources.cs" />
+    <EmbeddedResource Include="Properties/Resources.resx" />
+    <None Include="../gurux_mqtt.png" Pack="true" PackagePath="/" />
+    <None Include="../README.md" Pack="true" PackagePath="/" />
+    <None Include="../LICENSE" Pack="true" PackagePath="/" />
+    <None Include="../LICENSES/LicenseRef-Gurux-Commercial" Pack="true" PackagePath="LICENSES/" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Gurux.Common" Version="9.0.2611.1601" />
+    <PackageReference Include="MQTTnet" Version="5.2.0.1603" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="../gurux_mqtt.png" LogicalName="Gurux.MQTT.MediaIcon.png" />
   </ItemGroup>
 </Project>

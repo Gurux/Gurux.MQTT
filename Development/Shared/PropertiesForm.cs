@@ -1,34 +1,30 @@
-//
 // --------------------------------------------------------------------------
-//  Gurux Ltd
+// Gurux Ltd
 //
+// Copyright (c) Gurux Ltd.
 //
+// This file is part of Gurux Device Framework.
 //
-// Filename:        $HeadURL$
+// Commit: $Format:%H$
+// Date:   $Format:%cI$
 //
-// Version:         $Revision$,
-//                  $Date$
-//                  $Author$
+// This software is available under either of the following licenses:
 //
-// Copyright (c) Gurux Ltd
+// 1. GNU General Public License, version 2 only (GPL-2.0-only).
+//    See the LICENSE file included with this distribution.
 //
-//---------------------------------------------------------------------------
+// 2. A commercial license granted by Gurux Ltd under a separate written
+//    agreement. Use under this option requires a valid commercial license
+//    and is governed by the terms of that agreement.
 //
-//  DESCRIPTION
+// If you have not obtained a commercial license from Gurux Ltd,
+// use of this software is governed by GPL-2.0-only.
 //
-// This file is a part of Gurux Device Framework.
+// Commercial licensing: https://www.gurux.fi/
 //
-// Gurux Device Framework is Open Source software; you can redistribute it
-// and/or modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; version 2 of the License.
-// Gurux Device Framework is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-// See the GNU General Public License for more details.
-//
-// This code is licensed under the GNU General Public License v2.
-// Full text may be retrieved at http://www.gnu.org/licenses/gpl-2.0.txt
-//---------------------------------------------------------------------------
+// SPDX-License-Identifier: GPL-2.0-only OR LicenseRef-Gurux-Commercial
+// --------------------------------------------------------------------------
+
 using System;
 using System.Diagnostics;
 using System.Drawing;
@@ -37,9 +33,12 @@ using Gurux.Common;
 
 namespace Gurux.Shared
 {
+    /// <summary>Hosts a media property page with localized acceptance and cancellation buttons.</summary>
     partial class PropertiesForm : Form
     {
+        /// <summary>Property page whose staged changes are applied by the acceptance button.</summary>
         IGXPropertyPage Properties;
+        /// <summary>Online help address opened when the user requests help.</summary>
         string HelpLink;
 
         /// <summary>
@@ -105,11 +104,17 @@ namespace Gurux.Shared
             this.ClientSize = new Size(properties.Width, h);
         }
 
+        /// <summary>Keeps the hosted property form aligned with its container window.</summary>
+        /// <param name="sender">Object or transport identification that raised the notification.</param>
+        /// <param name="e">Event data supplied by the editor control.</param>
         void PropertiesForm_LocationChanged(object sender, EventArgs e)
         {
             (Properties as Form).Location = this.Location;
         }
 
+        /// <summary>Applies the staged settings and displays any validation error.</summary>
+        /// <param name="sender">Object or transport identification that raised the notification.</param>
+        /// <param name="e">Event data supplied by the editor control.</param>
         private void OKBtn_Click(object sender, EventArgs e)
         {
             try
