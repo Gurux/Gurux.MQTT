@@ -40,7 +40,7 @@
         <None Include="../LICENSES/LicenseRef-Gurux-Commercial" Pack="true" PackagePath="LICENSES/" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Gurux.Common" Version="9.0.2611.1801" />
+        <PackageReference Include="Gurux.Common" Version="9.0.2611.1802" />
         <PackageReference Include="MQTTnet" Version="5.2.0.1603" />
     </ItemGroup>
 </Project>
