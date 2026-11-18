@@ -1,33 +1,39 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
-  <PropertyGroup><TargetFrameworks>net11.0;net10.0</TargetFrameworks><DefaultItemExcludes>$(DefaultItemExcludes);Tests/**</DefaultItemExcludes><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <PackageId>Gurux.MQTT.Blazor</PackageId>
-    <Version Condition="'$(BUILD_BUILDNUMBER)' == ''">0.0.1-local</Version>
-    <Version Condition="'$(BUILD_BUILDNUMBER)' != ''">$(BUILD_BUILDNUMBER)</Version>
-    <Authors>Gurux Ltd</Authors><Company>Gurux Ltd</Company>
-    <Description>Optional Blazor settings components for Gurux media libraries.</Description>
-    <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression><PackageReadmeFile>README.md</PackageReadmeFile></PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="Tests/**/*.cs" />
-    <None Include="README.md" Pack="true" PackagePath="/" />
-    <PackageReference Include="Gurux.UI.Components" Version="4.0.2611.1201" />
-    <ProjectReference Include="../../Development/Gurux.MQTT.csproj" />
-
-  </ItemGroup>
-
-  <PropertyGroup>
-    <RepositoryUrl>https://github.com/Gurux/Gurux.MQTT</RepositoryUrl>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <PackageIcon>gurux_mqtt.png</PackageIcon>
-    <GuruxCommonVersion Condition="'$(GuruxCommonVersion)' == ''">9.0.2611.1601</GuruxCommonVersion>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Include="../../gurux_mqtt.png" Pack="true" PackagePath="/" />
-    <None Remove="Tests/**;tests/**" />
-    <Content Remove="Tests/**;tests/**" />
-    <EmbeddedResource Remove="Tests/**;tests/**" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Gurux.Common" Version="$(GuruxCommonVersion)" />
-  </ItemGroup>
+    <PropertyGroup>
+        <TargetFrameworks>net11.0;net10.0</TargetFrameworks>
+        <DefaultItemExcludes>$(DefaultItemExcludes);Tests/**</DefaultItemExcludes>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <PackageId>Gurux.MQTT.Blazor</PackageId>
+        <Version Condition="'$(BUILD_BUILDNUMBER)' == ''">0.0.1-local</Version>
+        <Version Condition="'$(BUILD_BUILDNUMBER)' != ''">$(BUILD_BUILDNUMBER)</Version>
+        <Authors>Gurux Ltd</Authors>
+        <Company>Gurux Ltd</Company>
+        <Description>Optional Blazor settings components for Gurux media libraries.</Description>
+        <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Remove="Tests/**/*.cs" />
+        <None Include="README.md" Pack="true" PackagePath="/" />
+        <PackageReference Include="Gurux.UI.Components" Version="4.0.2611.1201" />
+        <ProjectReference Include="../../Development/Gurux.MQTT.csproj" />
+    </ItemGroup>
+    <PropertyGroup>
+        <RepositoryUrl>https://github.com/Gurux/Gurux.MQTT</RepositoryUrl>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PackageIcon>gurux_mqtt.png</PackageIcon>
+        <GuruxCommonVersion Condition="'$(GuruxCommonVersion)' == ''">9.0.*</GuruxCommonVersion>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Include="../../Development/gurux_mqtt.png" Pack="true" PackagePath="/" />
+        <None Remove="Tests/**;tests/**" />
+        <Content Remove="Tests/**;tests/**" />
+        <EmbeddedResource Remove="Tests/**;tests/**" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Gurux.Common" Version="$(GuruxCommonVersion)" />
+    </ItemGroup>
 </Project>
