@@ -19,7 +19,7 @@ namespace Gurux.MQTT.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -61,6 +61,69 @@ namespace Gurux.MQTT.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The bridge closed the media connection..
+        /// </summary>
+        internal static string BridgeDisconnected {
+            get {
+                return ResourceManager.GetString("BridgeDisconnected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The bridge topic {0} did not acknowledge the request before the timeout..
+        /// </summary>
+        internal static string BridgeReplyTimeout {
+            get {
+                return ResourceManager.GetString("BridgeReplyTimeout", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The bridge request failed..
+        /// </summary>
+        internal static string BridgeRequestFailed {
+            get {
+                return ResourceManager.GetString("BridgeRequestFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The MQTT broker rejected the connection..
+        /// </summary>
+        internal static string BrokerConnectRejected {
+            get {
+                return ResourceManager.GetString("BrokerConnectRejected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The MQTT broker disconnected..
+        /// </summary>
+        internal static string BrokerDisconnected {
+            get {
+                return ResourceManager.GetString("BrokerDisconnected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The MQTT broker rejected the publish..
+        /// </summary>
+        internal static string BrokerPublishRejected {
+            get {
+                return ResourceManager.GetString("BrokerPublishRejected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The MQTT broker rejected the reply subscription..
+        /// </summary>
+        internal static string BrokerSubscribeRejected {
+            get {
+                return ResourceManager.GetString("BrokerSubscribeRejected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Broker.
         /// </summary>
         internal static string BrokerTxt {
@@ -79,11 +142,29 @@ namespace Gurux.MQTT.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Client Settings:.
+        ///   Looks up a localized string similar to Client ID.
         /// </summary>
-        internal static string ClientSettings {
+        internal static string ClientIdLabel {
             get {
-                return ResourceManager.GetString("ClientSettings", resourceCulture);
+                return ResourceManager.GetString("ClientIdLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Close the media before changing settings..
+        /// </summary>
+        internal static string CloseBeforeSettings {
+            get {
+                return ResourceManager.GetString("CloseBeforeSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The bridge returned an invalid message..
+        /// </summary>
+        internal static string InvalidBridgeMessage {
+            get {
+                return ResourceManager.GetString("InvalidBridgeMessage", resourceCulture);
             }
         }
         
@@ -115,20 +196,29 @@ namespace Gurux.MQTT.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Invalid connection..
-        /// </summary>
-        internal static string InvalidConnection {
-            get {
-                return ResourceManager.GetString("InvalidConnection", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Invalid topic..
         /// </summary>
         internal static string InvalidTopic {
             get {
                 return ResourceManager.GetString("InvalidTopic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A media lifecycle operation is already in progress..
+        /// </summary>
+        internal static string LifecycleInProgress {
+            get {
+                return ResourceManager.GetString("LifecycleInProgress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Media is closed..
+        /// </summary>
+        internal static string MediaIsClosed {
+            get {
+                return ResourceManager.GetString("MediaIsClosed", resourceCulture);
             }
         }
         
@@ -142,11 +232,47 @@ namespace Gurux.MQTT.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The MQTT payload exceeds the supported size..
+        /// </summary>
+        internal static string PayloadTooLarge {
+            get {
+                return ResourceManager.GetString("PayloadTooLarge", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Port:.
         /// </summary>
         internal static string PortTxt {
             get {
                 return ResourceManager.GetString("PortTxt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The MQTT publish did not complete before the timeout..
+        /// </summary>
+        internal static string PublishTimeout {
+            get {
+                return ResourceManager.GetString("PublishTimeout", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Either Count or Eop must be set..
+        /// </summary>
+        internal static string ReceiveConditionsRequired {
+            get {
+                return ResourceManager.GetString("ReceiveConditionsRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The MQTT receive queue is full..
+        /// </summary>
+        internal static string ReceiveQueueFull {
+            get {
+                return ResourceManager.GetString("ReceiveQueueFull", resourceCulture);
             }
         }
         
@@ -165,28 +291,6 @@ namespace Gurux.MQTT.Properties {
         internal static string TopicTxt {
             get {
                 return ResourceManager.GetString("TopicTxt", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to UnknownReply.
-        /// </summary>
-        internal static string UnknownReply
-        {
-            get
-            {
-                return ResourceManager.GetString("UnknownReply", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to UnknownReply.
-        /// </summary>
-        internal static string MediaIsClosed
-        {
-            get
-            {
-                return ResourceManager.GetString("MediaIsClosed", resourceCulture);
             }
         }
     }

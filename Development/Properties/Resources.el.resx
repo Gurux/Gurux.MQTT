@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>Ματαίωση</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>Ρυθμίσεις πελάτη:</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>Μη έγκυρη διεύθυνση μεσίτη.</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>Μη έγκυρος πελάτης.</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>Μη έγκυρη σύνδεση.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>Μη έγκυρο θέμα.</value>
@@ -152,9 +146,6 @@
   </data>
   <data name="TopicTxt" xml:space="preserve">
     <value>Θέμα</value>
-  </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>Άγνωστη απάντηση</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>Τα μέσα είναι κλειστά.</value>

@@ -2,8 +2,9 @@
 
 This independent example owns its Core controller, Avalonia Desktop views, native
 MAUI views, platform hosts, localized resources and MQTT icons. The root application
-compiles its Desktop or MAUI UI sources directly and references the Core controller,
-MQTT library and optional MQTT settings adapters through project references.
+compiles its Desktop or MAUI UI sources directly and references its Core controller
+through a local project reference. The MQTT library and optional MQTT settings
+adapters are restored from published NuGet packages.
 
 Configure the broker host, port, topic and client identifier in Settings, then open
 the connection. This media uses Gurux's JSON request/reply bridge protocol; a Gurux

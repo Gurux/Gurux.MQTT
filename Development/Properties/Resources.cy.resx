@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>Canslo</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>Gosodiadau Cleientiaid:</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>Cyfeiriad brocer annilys.</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>Cleient annilys.</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>Cysylltiad annilys.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>Pwnc annilys.</value>
@@ -152,9 +146,6 @@
   </data>
   <data name="TopicTxt" xml:space="preserve">
     <value>Pwnc</value>
-  </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>Ymateb Anhysbys</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>Mae'r cyfryngau ar gau.</value>

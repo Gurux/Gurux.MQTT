@@ -33,6 +33,6 @@
         <EmbeddedResource Remove="Tests/**;tests/**" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Gurux.Common" Version="9.0.2611.1601" />
+        <PackageReference Include="Gurux.Common" Version="$(GuruxCommonVersion)" />
     </ItemGroup>
 </Project>

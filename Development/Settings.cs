@@ -38,9 +38,9 @@ namespace Gurux.MQTT
     partial class Settings : Form, IGXPropertyPage, INotifyPropertyChanged
     {
         /// <summary>MQTT media instance whose settings are edited by this page.</summary>
-        GXMqtt target;
+        GXMqtt _target;
         /// <summary>Subscribers notified when an editor field changes.</summary>
-        PropertyChangedEventHandler propertyChanged;
+        PropertyChangedEventHandler _propertyChanged;
 
         /// <summary>
         /// Occurs when a property value changes.
@@ -49,11 +49,11 @@ namespace Gurux.MQTT
         {
             add
             {
-                propertyChanged += value;
+                _propertyChanged += value;
             }
             remove
             {
-                propertyChanged -= value;
+                _propertyChanged -= value;
             }
         }
 
@@ -61,7 +61,7 @@ namespace Gurux.MQTT
         /// <param name="target">MQTT media instance whose settings are read or edited.</param>
         public Settings(GXMqtt target)
         {
-            this.target = target;
+            this._target = target;
             InitializeComponent();
             Text = Resources.SettingsTxt;
             ClientIdLbl.Text = Resources.ResourceManager.GetString("ClientIdLabel", Resources.Culture);
@@ -169,14 +169,14 @@ namespace Gurux.MQTT
             this.TopicLbl.Text = Resources.TopicTxt;
             this.IPAddressLbl.Text = Resources.BrokerTxt;
             this.PortLbl.Text = Resources.PortTxt;
-            this.TopicTb.Text = target.Topic;
-            this.PortTB.Text = target.Port.ToString();
-            this.IPAddressTB.Text = target.ServerAddress;
-            this.ClientIdTb.Text = target.ClientId;
+            this.TopicTb.Text = _target.Topic;
+            this.PortTB.Text = _target.Port.ToString();
+            this.IPAddressTB.Text = _target.ServerAddress;
+            this.ClientIdTb.Text = _target.ClientId;
             //Hide controls which user do not want to show.
-            HostPanel.Enabled = (target.ConfigurableSettings & AvailableMediaSettings.Host) != 0;
-            PortPanel.Enabled = (target.ConfigurableSettings & AvailableMediaSettings.Port) != 0;
-            TopicPanel.Enabled = (target.ConfigurableSettings & AvailableMediaSettings.Topic) != 0;
+            HostPanel.Enabled = (_target.ConfigurableSettings & AvailableMediaSettings.Host) != 0;
+            PortPanel.Enabled = (_target.ConfigurableSettings & AvailableMediaSettings.Port) != 0;
+            TopicPanel.Enabled = (_target.ConfigurableSettings & AvailableMediaSettings.Topic) != 0;
             ClientIdPanel.Enabled = false;
             Dirty = false;
         }
@@ -184,10 +184,10 @@ namespace Gurux.MQTT
         /// <summary>Applies the staged broker, port, topic and client identifier to the media.</summary>
         void IGXPropertyPage.Apply()
         {
-            target.Port = Convert.ToInt32(this.PortTB.Text);
-            target.ServerAddress = this.IPAddressTB.Text;
-            target.Topic = this.TopicTb.Text;
-            target.ClientId  = this.ClientIdTb.Text;
+            _target.Port = Convert.ToInt32(this.PortTB.Text);
+            _target.ServerAddress = this.IPAddressTB.Text;
+            _target.Topic = this.TopicTb.Text;
+            _target.ClientId  = this.ClientIdTb.Text;
             Dirty = false;
         }
 
@@ -199,9 +199,9 @@ namespace Gurux.MQTT
         private void IPAddressTB_TextChanged(object sender, EventArgs e)
         {
             Dirty = true;
-            if (propertyChanged != null)
+            if (_propertyChanged != null)
             {
-                propertyChanged(this, new PropertyChangedEventArgs("IPAddress"));
+                _propertyChanged(this, new PropertyChangedEventArgs("IPAddress"));
             }
         }
 
@@ -211,9 +211,9 @@ namespace Gurux.MQTT
         private void PortTB_TextChanged(object sender, EventArgs e)
         {
             Dirty = true;
-            if (propertyChanged != null)
+            if (_propertyChanged != null)
             {
-                propertyChanged(this, new PropertyChangedEventArgs("Port"));
+                _propertyChanged(this, new PropertyChangedEventArgs("Port"));
             }
         }
 
@@ -223,9 +223,9 @@ namespace Gurux.MQTT
         private void TopicTb_TextChanged(object sender, EventArgs e)
         {
             Dirty = true;
-            if (propertyChanged != null)
+            if (_propertyChanged != null)
             {
-                propertyChanged(this, new PropertyChangedEventArgs("Topic"));
+                _propertyChanged(this, new PropertyChangedEventArgs("Topic"));
             }
         }
 
@@ -235,9 +235,9 @@ namespace Gurux.MQTT
         private void ClientIdTb_TextChanged(object sender, EventArgs e)
         {
             Dirty = true;
-            if (propertyChanged != null)
+            if (_propertyChanged != null)
             {
-                propertyChanged(this, new PropertyChangedEventArgs("ClientId"));
+                _propertyChanged(this, new PropertyChangedEventArgs("ClientId"));
             }
         }
 

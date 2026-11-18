@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>Ikkanċella</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>Settings tal-Klijent:</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>Indirizz tas-sensar invalidu.</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>Klijent invalidu.</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>Konnessjoni invalida.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>Suġġett invalidu.</value>
@@ -152,9 +146,6 @@
   </data>
   <data name="TopicTxt" xml:space="preserve">
     <value>Suġġett</value>
-  </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>Risposta Mhux Magħrufa</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>Il-midja hija magħluqa.</value>

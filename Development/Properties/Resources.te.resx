@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>రద్దు చేయండి</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>క్లయింట్ సెట్టింగులు:</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>చెల్లని బ్రోకర్ చిరునామా.</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>చెల్లని క్లయింట్.</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>కనెక్షన్ చెల్లదు.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>చెల్లని అంశం.</value>
@@ -152,9 +146,6 @@
   </data>
   <data name="TopicTxt" xml:space="preserve">
     <value>అంశం</value>
-  </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>తెలియని ప్రత్యుత్తరం</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>మీడియా మూసివేయబడింది.</value>

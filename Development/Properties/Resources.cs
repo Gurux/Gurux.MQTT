@@ -33,9 +33,9 @@ namespace Gurux.MQTT.Properties;
 internal static class Resources
 {
     /// <summary>Loads the embedded message catalogue for this transport.</summary>
-    private static readonly ResourceManager manager = new("Gurux.MQTT.Properties.Resources", typeof(Resources).Assembly);
+    private static readonly ResourceManager _manager = new("Gurux.MQTT.Properties.Resources", typeof(Resources).Assembly);
     /// <summary>Gets a complete message in the current UI culture.</summary>
     /// <param name="name">The existing resource key.</param>
     /// <returns>The localized message, or its resource key if missing.</returns>
-    internal static string Get(string name) => manager.GetString(name, CultureInfo.CurrentUICulture) ?? name;
+    internal static string Get(string name) => _manager.GetString(name, CultureInfo.CurrentUICulture) ?? name;
 }

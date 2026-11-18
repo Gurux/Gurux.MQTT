@@ -52,13 +52,13 @@ public partial class GXMqtt : GXMediaBase, IGXMediaIconProvider
     }
 
     /// <summary>Protects session ownership and settings replacement without spanning awaits.</summary>
-    private readonly object admission = new();
+    private readonly object _admission = new();
     /// <summary>Identifies event callbacks that may request shutdown without awaiting their own dispatcher.</summary>
-    private static readonly AsyncLocal<Session?> callbackOwner = new();
+    private static readonly AsyncLocal<Session?> _callbackOwner = new();
     /// <summary>Owns the current session until all of its native and managed work has stopped.</summary>
-    private Session? session;
+    private Session? _session;
     /// <summary>Allocates wire identifiers across reopen operations, reserving zero.</summary>
-    private ushort messageId;
+    private ushort _messageId;
     /// <summary>Limits one decoded bridge frame and prevents unbounded wire deserialization.</summary>
     private const int MaximumFrameBytes = 1024 * 1024;
 
@@ -118,7 +118,7 @@ public partial class GXMqtt : GXMediaBase, IGXMediaIconProvider
     /// <summary>Creates a closed media with default broker settings.</summary>
     public GXMqtt() { }
     /// <inheritdoc/>
-    public override bool IsOpen { get { lock (admission) { return session?.Open == true; } } }
+    public override bool IsOpen { get { lock (_admission) { return _session?.Open == true; } } }
     /// <inheritdoc/>
     public override string Name => string.Format(CultureInfo.InvariantCulture, "{0}:{1}/{2}", ServerAddress, Port, Topic);
     /// <inheritdoc/>
@@ -128,16 +128,16 @@ public partial class GXMqtt : GXMediaBase, IGXMediaIconProvider
     public override Task OpenAsync(CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        lock (admission)
+        lock (_admission)
         {
-            if (session is not null)
+            if (_session is not null)
             {
-                if (session.Closing is not null) { throw new InvalidOperationException(Resources.Get("LifecycleInProgress")); }
-                return session.Open ? Task.CompletedTask : session.Opening.WaitAsync(cancellationToken);
+                if (_session.Closing is not null) { throw new InvalidOperationException(Resources.Get("LifecycleInProgress")); }
+                return _session.Open ? Task.CompletedTask : _session.Opening.WaitAsync(cancellationToken);
             }
             ValidateForOpen();
-            var current = new Session(configuration);
-            session = current;
+            var current = new Session(_configuration);
+            _session = current;
             current.Opening = OpenCoreAsync(current, cancellationToken);
             return current.Opening;
         }
@@ -161,7 +161,7 @@ public partial class GXMqtt : GXMediaBase, IGXMediaIconProvider
                 current.Client.DisconnectedAsync += _ =>
                 {
                     bool unexpected;
-                    lock (admission) { unexpected = ReferenceEquals(session, current) && current.Closing is null; }
+                    lock (_admission) { unexpected = ReferenceEquals(_session, current) && current.Closing is null; }
                     if (unexpected) { StopFailedSession(current, new IOException(Resources.Get("BrokerDisconnected"))); }
                     return Task.CompletedTask;
                 };
@@ -182,10 +182,10 @@ public partial class GXMqtt : GXMediaBase, IGXMediaIconProvider
                     throw new IOException(Resources.Get("BrokerSubscribeRejected"));
                 }
                 await ExchangeAsync(current, MessageType.Open, deadline.Token).ConfigureAwait(false);
-                lock (admission)
+                lock (_admission)
                 {
                     deadline.Token.ThrowIfCancellationRequested();
-                    if (!ReferenceEquals(session, current) || current.Closing is not null) { throw new OperationCanceledException(current.Stop.Token); }
+                    if (!ReferenceEquals(_session, current) || current.Closing is not null) { throw new OperationCanceledException(current.Stop.Token); }
                     ReceiveBuffer.Open();
                     current.Open = true;
                     NotifyState(current, MediaState.Open);
@@ -224,16 +224,16 @@ public partial class GXMqtt : GXMediaBase, IGXMediaIconProvider
     /// <returns>A nonzero wire message identifier.</returns>
     private ushort NextId(Session current)
     {
-        lock (admission)
+        lock (_admission)
         {
-            if (++messageId == 0) { ++messageId; }
+            if (++_messageId == 0) { ++_messageId; }
             lock (current.Replies)
             {
-                current.Accepted.Add(messageId);
-                current.History.Enqueue(messageId);
+                current.Accepted.Add(_messageId);
+                current.History.Enqueue(_messageId);
                 if (current.History.Count > 256) { current.Accepted.Remove(current.History.Dequeue()); }
             }
-            return messageId;
+            return _messageId;
         }
     }
 
@@ -281,7 +281,7 @@ public partial class GXMqtt : GXMediaBase, IGXMediaIconProvider
     {
         try
         {
-            lock (admission) { if (!ReferenceEquals(session, current)) { return Task.CompletedTask; } }
+            lock (_admission) { if (!ReferenceEquals(_session, current)) { return Task.CompletedTask; } }
             var packet = args.ApplicationMessage;
             if (packet.Topic != current.ClientId || packet.Retain) { return Task.CompletedTask; }
             var payload = packet.Payload;
@@ -323,8 +323,8 @@ public partial class GXMqtt : GXMediaBase, IGXMediaIconProvider
     /// <returns>Completion after all callbacks stop for this connection.</returns>
     private async Task DispatchAsync(Session current)
     {
-        Session? previous = callbackOwner.Value;
-        callbackOwner.Value = current;
+        Session? previous = _callbackOwner.Value;
+        _callbackOwner.Value = current;
         try
         {
             await current.Ready.Task.WaitAsync(current.Stop.Token).ConfigureAwait(false);
@@ -344,7 +344,7 @@ public partial class GXMqtt : GXMediaBase, IGXMediaIconProvider
         }
         catch (OperationCanceledException) when (current.Stop.IsCancellationRequested) { }
         catch (Exception error) { StopFailedSession(current, error); }
-        finally { callbackOwner.Value = previous; }
+        finally { _callbackOwner.Value = previous; }
     }
 
     /// <inheritdoc/>
@@ -354,9 +354,9 @@ public partial class GXMqtt : GXMediaBase, IGXMediaIconProvider
         if (data.Length > MaximumFrameBytes) { throw new ArgumentException(Resources.Get("PayloadTooLarge"), nameof(data)); }
         Session current;
         CancellationToken stop;
-        lock (admission)
+        lock (_admission)
         {
-            current = session is { Open: true, Closing: null } active ? active
+            current = _session is { Open: true, Closing: null } active ? active
                 : throw new InvalidOperationException(Resources.Get("MediaIsClosed"));
             if (receiver is not null && receiver != current.Settings.Topic)
             {
@@ -392,9 +392,9 @@ public partial class GXMqtt : GXMediaBase, IGXMediaIconProvider
     /// <param name="error">The error exposed to pending requests and subscribers.</param>
     private void StopFailedSession(Session current, Exception error)
     {
-        lock (admission)
+        lock (_admission)
         {
-            if (!ReferenceEquals(session, current) || current.Closing is not null) { return; }
+            if (!ReferenceEquals(_session, current) || current.Closing is not null) { return; }
             current.Failure ??= error;
             lock (current.Replies)
             {
@@ -407,9 +407,9 @@ public partial class GXMqtt : GXMediaBase, IGXMediaIconProvider
     /// <inheritdoc/>
     public override Task CloseAsync()
     {
-        lock (admission)
+        lock (_admission)
         {
-            return session is null ? Task.CompletedTask : CloseSessionAsync(session);
+            return _session is null ? Task.CompletedTask : CloseSessionAsync(_session);
         }
     }
 
@@ -418,7 +418,7 @@ public partial class GXMqtt : GXMediaBase, IGXMediaIconProvider
     /// <returns>Tracked shutdown, or immediate completion for a reentrant callback on this session.</returns>
     private Task CloseSessionAsync(Session current)
     {
-        lock (admission)
+        lock (_admission)
         {
             if (current.Closing is null)
             {
@@ -428,7 +428,7 @@ public partial class GXMqtt : GXMediaBase, IGXMediaIconProvider
                 current.Inbox.Writer.TryComplete();
                 current.Closing = Task.Run(() => CloseCoreAsync(current));
             }
-            return ReferenceEquals(callbackOwner.Value, current) ? Task.CompletedTask : current.Closing;
+            return ReferenceEquals(_callbackOwner.Value, current) ? Task.CompletedTask : current.Closing;
         }
     }
 
@@ -438,8 +438,8 @@ public partial class GXMqtt : GXMediaBase, IGXMediaIconProvider
     private async Task CloseCoreAsync(Session current)
     {
         await current.OpenDone.Task.ConfigureAwait(false);
-        Session? previous = callbackOwner.Value;
-        callbackOwner.Value = current;
+        Session? previous = _callbackOwner.Value;
+        _callbackOwner.Value = current;
         try
         {
             try { NotifyState(current, MediaState.Closing); }
@@ -474,17 +474,17 @@ public partial class GXMqtt : GXMediaBase, IGXMediaIconProvider
         {
             current.Client.Dispose();
             await current.Worker.ConfigureAwait(false);
-            lock (admission)
+            lock (_admission)
             {
-                if (ReferenceEquals(session, current))
+                if (ReferenceEquals(_session, current))
                 {
-                    session = null;
+                    _session = null;
                     try { SetState(MediaState.Closed); }
                     catch (Exception) { /* Cleanup is complete even if a state observer fails. */ }
                 }
             }
             current.Stop.Dispose();
-            callbackOwner.Value = previous;
+            _callbackOwner.Value = previous;
         }
     }
 
@@ -493,9 +493,9 @@ public partial class GXMqtt : GXMediaBase, IGXMediaIconProvider
     /// <param name="state">The lifecycle transition to publish.</param>
     private void NotifyState(Session current, MediaState state)
     {
-        Session? previous = callbackOwner.Value;
-        callbackOwner.Value = current;
+        Session? previous = _callbackOwner.Value;
+        _callbackOwner.Value = current;
         try { SetState(state); }
-        finally { callbackOwner.Value = previous; }
+        finally { _callbackOwner.Value = previous; }
     }
 }

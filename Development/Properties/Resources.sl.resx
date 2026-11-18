@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>Prekliči</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>Nastavitve odjemalca:</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>Neveljaven naslov posrednika.</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>Neveljaven odjemalec.</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>Neveljavna povezava.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>Neveljavna tema.</value>
@@ -152,9 +146,6 @@
   </data>
   <data name="TopicTxt" xml:space="preserve">
     <value>Tema</value>
-  </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>Neznan odgovor</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>Mediji so zaprti.</value>

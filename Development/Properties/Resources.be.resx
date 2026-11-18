@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>Адмяніць</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>Налады кліента:</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>Няправільны адрас брокера.</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>Няправільны кліент.</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>Няправільнае злучэнне.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>Няправільная тэма.</value>
@@ -152,9 +146,6 @@
   </data>
   <data name="TopicTxt" xml:space="preserve">
     <value>Тэма</value>
-  </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>Невядомы адказ</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>Сродкі масавай інфармацыі зачыненыя.</value>

@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>ரத்துசெய்</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>வாடிக்கையாளர் அமைப்புகள்:</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>தவறான தரகர் முகவரி.</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>தவறான கிளையன்ட்.</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>தவறான இணைப்பு.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>தவறான தலைப்பு.</value>
@@ -152,9 +146,6 @@
   </data>
   <data name="TopicTxt" xml:space="preserve">
     <value>தலைப்பு</value>
-  </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>தெரியாத பதில்</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>மீடியா மூடப்பட்டுள்ளது.</value>

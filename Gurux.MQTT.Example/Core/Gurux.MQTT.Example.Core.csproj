@@ -1,4 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup><TargetFrameworks>net11.0;net10.0</TargetFrameworks><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><GenerateDocumentationFile>true</GenerateDocumentationFile></PropertyGroup>
-  <ItemGroup><EmbeddedResource Update="Properties/ExampleResources.resx" LogicalName="Gurux.MQTT.Example.Properties.ExampleResources.resources" /><Compile Remove="Tests/**/*.cs" /><ProjectReference Include="../../Development/Gurux.MQTT.csproj" /></ItemGroup>
+  <ItemGroup><EmbeddedResource Update="Properties/ExampleResources.resx" LogicalName="Gurux.MQTT.Example.Properties.ExampleResources.resources" /><Compile Remove="Tests/**/*.cs" /><PackageReference Include="Gurux.MQTT" Version="9.0.2611.1801" /></ItemGroup>
+  <ItemGroup><PackageReference Include="Gurux.Common" Version="9.0.2611.1801" /></ItemGroup>
 </Project>

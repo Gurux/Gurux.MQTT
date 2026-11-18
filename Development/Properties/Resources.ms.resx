@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>Batal</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>Tetapan Pelanggan:</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>Alamat broker tidak sah.</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>Pelanggan tidak sah.</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>Sambungan tidak sah.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>Topik tidak sah.</value>
@@ -152,9 +146,6 @@
   </data>
   <data name="TopicTxt" xml:space="preserve">
     <value>Topik</value>
-  </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>Jawapan Tidak Diketahui</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>Media ditutup.</value>

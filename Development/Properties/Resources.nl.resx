@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>annuleren</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>Clientinstellingen:</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>Ongeldig makelaaradres.</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>Ongeldige klant.</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>Ongeldige verbinding.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>Ongeldig onderwerp.</value>
@@ -152,9 +146,6 @@
   </data>
   <data name="TopicTxt" xml:space="preserve">
     <value>Onderwerp</value>
-  </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>Onbekend antwoord</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>Media is gesloten.</value>

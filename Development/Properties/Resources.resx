@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>Client Settings:</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>Invalid broker address.</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>Invalid client.</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>Invalid connection.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>Invalid topic.</value>
@@ -153,50 +147,11 @@
   <data name="TopicTxt" xml:space="preserve">
     <value>Topic</value>
   </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>Unknown Reply</value>
-  </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>Media is closed.</value>
   </data>
-  <data name="TopicReplyTimeout" xml:space="preserve">
-    <value>Invalid topic &apos;{0}&apos;.</value>
-  </data>
   <data name="ReceiveConditionsRequired" xml:space="preserve">
     <value>Either Count or Eop must be set.</value>
-  </data>
-  <data name="CommunicationCategory" xml:space="preserve">
-    <value>Communication</value>
-  </data>
-  <data name="TopicDescription" xml:space="preserve">
-    <value>Retrieves or sets used topic.</value>
-  </data>
-  <data name="ClientIdDescription" xml:space="preserve">
-    <value>Retrieves or sets used client ID.</value>
-  </data>
-  <data name="ServerAddressDescription" xml:space="preserve">
-    <value>MQTT server address.</value>
-  </data>
-  <data name="PortDescription" xml:space="preserve">
-    <value>MQTT server port number.</value>
-  </data>
-  <data name="ReceivedEventDescription" xml:space="preserve">
-    <value>GXNet component sends received data through this method.</value>
-  </data>
-  <data name="ErrorEventDescription" xml:space="preserve">
-    <value>Errors that occur after the connection is established, are sent through this method.</value>
-  </data>
-  <data name="StateEventDescription" xml:space="preserve">
-    <value>Media component sends notification, when its state changes.</value>
-  </data>
-  <data name="ClientConnectedEventDescription" xml:space="preserve">
-    <value>Called when the client is establishing a connection with a Net Server.</value>
-  </data>
-  <data name="ClientDisconnectedEventDescription" xml:space="preserve">
-    <value>Called when the client has been disconnected from the network server.</value>
-  </data>
-  <data name="TraceEventDescription" xml:space="preserve">
-    <value>Called when the Media is sending or receiving data.</value>
   </data>
   <data name="ClientIdLabel" xml:space="preserve">
     <value>Client ID</value>

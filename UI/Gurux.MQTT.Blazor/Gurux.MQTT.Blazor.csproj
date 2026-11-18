@@ -17,7 +17,7 @@
     <ItemGroup>
         <Compile Remove="Tests/**/*.cs" />
         <None Include="README.md" Pack="true" PackagePath="/" />
-        <PackageReference Include="Gurux.UI.Components" Version="4.0.2611.1201" />
+        <PackageReference Include="Gurux.UI.Components" Version="4.0.2611.1801" />
         <ProjectReference Include="../../Development/Gurux.MQTT.csproj" />
     </ItemGroup>
     <PropertyGroup>

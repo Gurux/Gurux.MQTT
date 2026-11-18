@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>Поништити, отказати</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>Подешавања клијента:</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>Неважећа адреса посредника.</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>Неважећи клијент.</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>Неважећа веза.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>Неважећа тема.</value>
@@ -152,9 +146,6 @@
   </data>
   <data name="TopicTxt" xml:space="preserve">
     <value>Тема</value>
-  </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>Непознати одговор</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>Медији су затворени.</value>

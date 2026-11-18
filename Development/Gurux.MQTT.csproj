@@ -33,13 +33,14 @@
     <ItemGroup>
         <Compile Include="GXMqtt.cs;GXMqtt.Settings.cs;MqttSettings.cs;MqttJsonContext.cs;AvailableMediaSettings.cs;Message/GXMessage.cs;Message/MessageType.cs;Properties/Resources.cs" />
         <EmbeddedResource Include="Properties/Resources.resx" />
+        <EmbeddedResource Include="gurux_mqtt.png" LogicalName="Gurux.MQTT.MediaIcon.png" />
         <None Include="gurux_mqtt.png" Pack="true" PackagePath="/" />
         <None Include="../README.md" Pack="true" PackagePath="/" />
         <None Include="../LICENSE" Pack="true" PackagePath="/" />
         <None Include="../LICENSES/LicenseRef-Gurux-Commercial" Pack="true" PackagePath="LICENSES/" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Gurux.Common" Version="9.0.2611.1601" />
+        <PackageReference Include="Gurux.Common" Version="9.0.2611.1801" />
         <PackageReference Include="MQTTnet" Version="5.2.0.1603" />
     </ItemGroup>
 </Project>

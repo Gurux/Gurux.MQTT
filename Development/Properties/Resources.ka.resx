@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>გაუქმება</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>კლიენტის პარამეტრები:</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>ბროკერის მისამართი არასწორია.</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>არასწორი კლიენტი.</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>არასწორი კავშირი.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>არასწორი თემაა.</value>
@@ -152,9 +146,6 @@
   </data>
   <data name="TopicTxt" xml:space="preserve">
     <value>Თემა</value>
-  </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>უცნობი პასუხი</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>მედია დაკეტილია.</value>

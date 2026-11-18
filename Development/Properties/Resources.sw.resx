@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>Ghairi</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>Mipangilio ya Mteja:</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>Anwani ya wakala isiyo sahihi.</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>Mteja batili.</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>Muunganisho batili.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>Mada si sahihi.</value>
@@ -152,9 +146,6 @@
   </data>
   <data name="TopicTxt" xml:space="preserve">
     <value>Mada</value>
-  </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>Jibu lisilojulikana</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>Vyombo vya habari vimefungwa.</value>

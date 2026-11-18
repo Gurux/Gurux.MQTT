@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>Zrušiť</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>Nastavenia klienta:</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>Neplatná adresa sprostredkovateľa.</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>Neplatný klient.</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>Neplatné pripojenie.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>Neplatná téma.</value>
@@ -152,9 +146,6 @@
   </data>
   <data name="TopicTxt" xml:space="preserve">
     <value>Téma</value>
-  </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>Neznáma odpoveď</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>Médiá sú zatvorené.</value>

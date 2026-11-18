@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>Cancelar</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>Configuración do cliente:</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>Enderezo do corredor non válido.</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>Cliente non válido.</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>Conexión non válida.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>Tema non válido.</value>
@@ -152,9 +146,6 @@
   </data>
   <data name="TopicTxt" xml:space="preserve">
     <value>Tema</value>
-  </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>Resposta descoñecida</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>Os medios están pechados.</value>

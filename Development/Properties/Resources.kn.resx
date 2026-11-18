@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>ರದ್ದುಮಾಡಿ</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>ಗ್ರಾಹಕ ಸೆಟ್ಟಿಂಗ್‌ಗಳು:</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>ಅಮಾನ್ಯ ಬ್ರೋಕರ್ ವಿಳಾಸ.</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>ಅಮಾನ್ಯ ಕ್ಲೈಂಟ್.</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>ಅಮಾನ್ಯ ಸಂಪರ್ಕ.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>ಅಮಾನ್ಯ ವಿಷಯ.</value>
@@ -152,9 +146,6 @@
   </data>
   <data name="TopicTxt" xml:space="preserve">
     <value>ವಿಷಯ</value>
-  </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>ಅಜ್ಞಾತ ಉತ್ತರ</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>ಮಾಧ್ಯಮವನ್ನು ಮುಚ್ಚಲಾಗಿದೆ.</value>

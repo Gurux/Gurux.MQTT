@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>لغو</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>تنظیمات مشتری:</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>آدرس کارگزار نامعتبر است.</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>مشتری نامعتبر است.</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>اتصال نامعتبر است.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>مبحث نامعتبر است.</value>
@@ -152,9 +146,6 @@
   </data>
   <data name="TopicTxt" xml:space="preserve">
     <value>موضوع</value>
-  </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>پاسخ ناشناخته</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>رسانه بسته است</value>

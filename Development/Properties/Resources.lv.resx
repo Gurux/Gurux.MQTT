@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>Atcelt</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>Klienta iestatījumi:</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>Nederīga brokera adrese.</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>Nederīgs klients.</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>Nederīgs savienojums.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>Nederīga tēma.</value>
@@ -152,9 +146,6 @@
   </data>
   <data name="TopicTxt" xml:space="preserve">
     <value>Temats</value>
-  </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>Nezināma atbilde</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>Multivide ir slēgta.</value>

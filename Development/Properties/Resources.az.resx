@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>Ləğv et</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>Müştəri Ayarları:</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>Yanlış broker ünvanı.</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>Yanlış müştəri.</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>Yanlış əlaqə.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>Yanlış mövzu.</value>
@@ -152,9 +146,6 @@
   </data>
   <data name="TopicTxt" xml:space="preserve">
     <value>Mövzu</value>
-  </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>Naməlum cavab</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>Media bağlıdır.</value>

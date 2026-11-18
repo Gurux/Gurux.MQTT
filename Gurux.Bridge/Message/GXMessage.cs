@@ -25,6 +25,8 @@
 // SPDX-License-Identifier: GPL-2.0-only OR LicenseRef-Gurux-Commercial
 // --------------------------------------------------------------------------
 
+#nullable enable
+
 using System;
 
 namespace Gurux.MQTT.Message
@@ -35,7 +37,7 @@ namespace Gurux.MQTT.Message
     public class GXMessage
     {
         /// <summary>
-        /// Message Id.
+        /// Gets or sets the identifier used to correlate a bridge request and its reply.
         /// </summary>
         public UInt16 id
         {
@@ -45,7 +47,7 @@ namespace Gurux.MQTT.Message
 
 
         /// <summary>
-        /// Message type.
+        /// Gets or sets the numeric bridge operation or reply code.
         /// </summary>
         public int type
         {
@@ -54,7 +56,7 @@ namespace Gurux.MQTT.Message
         }
 
         /// <summary>
-        /// Sender ID.
+        /// Gets or sets the sender identifier, or null when the message has no sender.
         /// </summary>
         public string? sender
         {
@@ -63,7 +65,7 @@ namespace Gurux.MQTT.Message
         }
 
         /// <summary>
-        /// Sent or received frame.
+        /// Gets or sets the encoded transport frame, or null when no payload is present.
         /// </summary>
         public string? frame
         {
@@ -72,7 +74,7 @@ namespace Gurux.MQTT.Message
         }
 
         /// <summary>
-        /// Occurred exception.
+        /// Gets or sets the reported failure details, or null when no failure is reported.
         /// </summary>
         public string? exception
         {

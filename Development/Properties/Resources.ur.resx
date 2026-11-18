@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>منسوخ کریں</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>کلائنٹ کی ترتیبات:</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>غلط بروکر ایڈریس۔</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>غلط مؤکل۔</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>غلط کنکشن۔</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>غلط عنوان۔</value>
@@ -152,9 +146,6 @@
   </data>
   <data name="TopicTxt" xml:space="preserve">
     <value>موضوع</value>
-  </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>نامعلوم جواب</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>میڈیا بند ہے۔</value>

@@ -33,19 +33,19 @@ namespace Gurux.MQTT.Example;
 public sealed class ExampleSession : IAsyncDisposable
 {
     /// <summary>Clears retained activity without changing received payloads, connection state or traffic counters.</summary>
-    public void ClearActivity() => log.Clear();
+    public void ClearActivity() => _log.Clear();
     /// <summary>Stores received payloads independently of diagnostic activity.</summary>
-    private readonly Queue<byte[]> receivedData = new();
+    private readonly Queue<byte[]> _receivedData = new();
     /// <summary>Tracks retained payload bytes to bound display history to 64 KiB.</summary>
-    private int receivedDataSize;
+    private int _receivedDataSize;
 
     /// <summary>Clears received display history without changing the connection, counters or activity log.</summary>
     public void ClearReceived()
     {
-        lock (sync)
+        lock (_sync)
         {
-            receivedData.Clear();
-            receivedDataSize = 0;
+            _receivedData.Clear();
+            _receivedDataSize = 0;
         }
     }
 
@@ -54,9 +54,9 @@ public sealed class ExampleSession : IAsyncDisposable
     /// <returns>The received frames separated by platform line endings.</returns>
     public string ReceivedData(bool hex = false)
     {
-        lock (sync)
+        lock (_sync)
         {
-            return string.Join(Environment.NewLine, receivedData.Select(data => ExampleDataDisplay.Format(data, hex)));
+            return string.Join(Environment.NewLine, _receivedData.Select(data => ExampleDataDisplay.Format(data, hex)));
         }
     }
 
@@ -70,35 +70,35 @@ public sealed class ExampleSession : IAsyncDisposable
             return;
         }
         byte[] retained = payload.AsSpan(Math.Max(0, payload.Length - 65536)).ToArray();
-        lock (sync)
+        lock (_sync)
         {
-            receivedData.Enqueue(retained);
-            receivedDataSize += retained.Length;
-            while (receivedData.Count > 500 || receivedDataSize > 65536)
+            _receivedData.Enqueue(retained);
+            _receivedDataSize += retained.Length;
+            while (_receivedData.Count > 500 || _receivedDataSize > 65536)
             {
-                receivedDataSize -= receivedData.Dequeue().Length;
+                _receivedDataSize -= _receivedData.Dequeue().Length;
             }
         }
     }
 
     /// <summary>Serializes connection and send operations.</summary>
-    private readonly SemaphoreSlim operations = new(1, 1);
+    private readonly SemaphoreSlim _operations = new(1, 1);
     /// <summary>Protects cancellation and disposal state.</summary>
-    private readonly object sync = new();
+    private readonly object _sync = new();
     /// <summary>Stores the bounded activity history.</summary>
-    private readonly SessionLog log = new();
+    private readonly SessionLog _log = new();
     /// <summary>Cancels active operations when closing.</summary>
-    private CancellationTokenSource lifetime = new();
+    private CancellationTokenSource _lifetime = new();
     /// <summary>Tracks whether disposal has started.</summary>
-    private bool disposed;
+    private bool _disposed;
     /// <summary>Tracks the active serialized operation.</summary>
-    private int busy;
+    private int _busy;
     /// <summary>Gets the MQTT media owned by this session.</summary>
     public GXMqtt Media { get; }
     /// <summary>Gets whether an open or send operation is running.</summary>
-    public bool IsBusy => Volatile.Read(ref busy) != 0;
+    public bool IsBusy => Volatile.Read(ref _busy) != 0;
     /// <summary>Gets a snapshot of recent activity.</summary>
-    public IReadOnlyList<string> Log => log.Snapshot;
+    public IReadOnlyList<string> Log => _log.Snapshot;
     /// <summary>Creates a session owning an independent MQTT bridge connection.</summary>
     public ExampleSession() : this(new GXMqtt()) { }
     /// <summary>Takes ownership of an existing MQTT connection.</summary>
@@ -118,19 +118,19 @@ public sealed class ExampleSession : IAsyncDisposable
         RecordReceived(args.Data);
         if (args.Data is byte[] bytes)
         {
-            log.Add(ExampleDataDisplay.IsAscii(bytes)
+            _log.Add(ExampleDataDisplay.IsAscii(bytes)
                 ? string.Format(CultureInfo.CurrentCulture, ExampleResources.RxBytes, args.SenderInfo, Convert.ToHexString(bytes), ExampleDataDisplay.Format(bytes))
                 : string.Format(CultureInfo.CurrentCulture, ExampleResources.RxData, args.SenderInfo, ExampleDataDisplay.Format(bytes)));
         }
         else
         {
-            log.Add(string.Format(CultureInfo.CurrentCulture, ExampleResources.RxData, args.SenderInfo, args.Data));
+            _log.Add(string.Format(CultureInfo.CurrentCulture, ExampleResources.RxData, args.SenderInfo, args.Data));
         }
     }
     /// <summary>Records transport errors for the native activity view.</summary>
     /// <param name="sender">The originating MQTT media.</param>
     /// <param name="args">The reported transport error.</param>
-    private void Error(object? sender, MediaErrorEventArgs args) => log.Add(string.Format(CultureInfo.CurrentCulture, ExampleResources.Error, args.Exception.Message));
+    private void Error(object? sender, MediaErrorEventArgs args) => _log.Add(string.Format(CultureInfo.CurrentCulture, ExampleResources.Error, args.Exception.Message));
     /// <summary>Runs one operation under the session cancellation lifetime.</summary>
     /// <typeparam name="T">The operation result type.</typeparam>
     /// <param name="action">The asynchronous operation.</param>
@@ -140,12 +140,12 @@ public sealed class ExampleSession : IAsyncDisposable
     private async Task<T> RunAsync<T>(Func<CancellationToken, Task<T>> action, CancellationToken cancellationToken)
     {
         CancellationToken token;
-        lock (sync) { ObjectDisposedException.ThrowIf(disposed, this); token = lifetime.Token; }
+        lock (_sync) { ObjectDisposedException.ThrowIf(_disposed, this); token = _lifetime.Token; }
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(token, cancellationToken);
-        await operations.WaitAsync(linked.Token).ConfigureAwait(false);
-        Interlocked.Exchange(ref busy, 1);
+        await _operations.WaitAsync(linked.Token).ConfigureAwait(false);
+        Interlocked.Exchange(ref _busy, 1);
         try { linked.Token.ThrowIfCancellationRequested(); return await action(linked.Token).ConfigureAwait(false); }
-        finally { Interlocked.Exchange(ref busy, 0); operations.Release(); }
+        finally { Interlocked.Exchange(ref _busy, 0); _operations.Release(); }
     }
     /// <summary>Opens the selected MQTT transport.</summary>
     /// <param name="cancellationToken">Cancels the open operation.</param>
@@ -153,23 +153,23 @@ public sealed class ExampleSession : IAsyncDisposable
     public Task OpenAsync(CancellationToken cancellationToken = default) => RunAsync(async token =>
     {
         await Media.OpenAsync(token).ConfigureAwait(false);
-        log.Add(ExampleResources.Opened);
+        _log.Add(ExampleResources.Opened);
         return true;
     }, cancellationToken);
     /// <summary>Cancels active work and closes the MQTT transport.</summary>
     /// <returns>A task completing after active work and transport shutdown finish.</returns>
     public async Task CloseAsync()
     {
-        lock (sync) { lifetime.Cancel(); }
+        lock (_sync) { _lifetime.Cancel(); }
         var closing = Media.CloseAsync();
-        await operations.WaitAsync().ConfigureAwait(false);
+        await _operations.WaitAsync().ConfigureAwait(false);
         try
         {
             await closing.ConfigureAwait(false);
-            lock (sync) { lifetime.Dispose(); lifetime = new(); }
-            log.Add(ExampleResources.ClosedLog);
+            lock (_sync) { _lifetime.Dispose(); _lifetime = new(); }
+            _log.Add(ExampleResources.ClosedLog);
         }
-        finally { operations.Release(); }
+        finally { _operations.Release(); }
     }
     /// <summary>Sends text or hexadecimal bytes and optionally waits for a framed reply.</summary>
     /// <param name="text">The UTF-8 text or hexadecimal bytes to send; in text mode, literal \r and \n sequences become carriage returns and line feeds.</param>
@@ -190,7 +190,7 @@ public sealed class ExampleSession : IAsyncDisposable
             using var scope = receiveReply ? Media.BeginSynchronous() : null;
             if (receiveReply) { Media.ResetSynchronousBuffer(); }
             await Media.SendAsync(data, cancellationToken: token).ConfigureAwait(false);
-            log.Add(ExampleDataDisplay.IsAscii(data)
+            _log.Add(ExampleDataDisplay.IsAscii(data)
                 ? string.Format(CultureInfo.CurrentCulture, ExampleResources.TxBytes, Convert.ToHexString(data), ExampleDataDisplay.Format(data))
                 : string.Format(CultureInfo.CurrentCulture, ExampleResources.Tx, ExampleDataDisplay.Format(data, hex)));
             if (!receiveReply) { return null; }
@@ -198,7 +198,7 @@ public sealed class ExampleSession : IAsyncDisposable
             var reply = parameters.Reply ?? [];
             RecordReceived(reply);
             var result = ExampleDataDisplay.Format(reply, hex);
-            log.Add(ExampleDataDisplay.IsAscii(reply)
+            _log.Add(ExampleDataDisplay.IsAscii(reply)
                 ? string.Format(CultureInfo.CurrentCulture, ExampleResources.ReplyBytes, Convert.ToHexString(reply), ExampleDataDisplay.Format(reply))
                 : string.Format(CultureInfo.CurrentCulture, ExampleResources.Reply, result));
             return result;
@@ -206,7 +206,7 @@ public sealed class ExampleSession : IAsyncDisposable
     /// <inheritdoc/>
     public async ValueTask DisposeAsync()
     {
-        lock (sync) { if (disposed) { return; } disposed = true; }
+        lock (_sync) { if (_disposed) { return; } _disposed = true; }
         await CloseAsync().ConfigureAwait(false);
         Media.OnReceived -= Received;
         Media.OnError -= Error;

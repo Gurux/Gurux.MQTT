@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Gurux.Common" Version="9.0.2611.1601" />
+    <PackageReference Include="Gurux.Common" Version="9.0.2611.1801" />
     <PackageReference Include="MQTTnet" Version="5.2.0.1603" />
   </ItemGroup>
 
@@ -26,6 +26,6 @@
     </EmbeddedResource>
   </ItemGroup>
 
-<ItemGroup><ProjectReference Include="../../Gurux.Net/Development/Gurux.Net.csproj" /><ProjectReference Include="../../Gurux.Serial/Development/Gurux.Serial.csproj" /></ItemGroup>
+<ItemGroup><PackageReference Include="Gurux.Net" Version="9.0.2611.1705" /><PackageReference Include="Gurux.Serial" Version="9.0.2611.1801" /></ItemGroup>
 <ItemGroup><Compile Remove="Tests/**/*.cs" /><AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo"><_Parameter1>Gurux.Bridge.Tests</_Parameter1></AssemblyAttribute></ItemGroup>
 </Project>

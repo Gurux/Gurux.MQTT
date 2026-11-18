@@ -27,11 +27,11 @@
 // --------------------------------------------------------------------------
 *@
 @implements IDisposable
-@if (draft is not null && !finished)
+@if (_draft is not null && !_finished)
 {
     <MediaAppearance>
         <section class="container py-3" aria-label="@Properties.Resources.MediaSettings">
-            <MediaSettingsForm @key="draft" Draft="draft" Completed="Finish" CancellationToken="CancellationToken" />
+            <MediaSettingsForm @key="_draft" Draft="_draft" Completed="Finish" CancellationToken="CancellationToken" />
         </section>
     </MediaAppearance>
 }
@@ -43,43 +43,43 @@
     /// <summary>Cancels this editing session without saving.</summary>
     [Parameter] public CancellationToken CancellationToken { get; set; }
     /// <summary>Tracks the caller-owned media for replacement detection.</summary>
-    private Gurux.Common.IGXMedia? source;
+    private Gurux.Common.IGXMedia? _source;
     /// <summary>Owns the current settings transaction.</summary>
-    private MediaSettingsDraft? draft;
+    private MediaSettingsDraft? _draft;
     /// <summary>Disconnects the cancellation callback during cleanup.</summary>
-    private CancellationTokenRegistration registration;
+    private CancellationTokenRegistration _registration;
     /// <summary>Tracks which token owns the active registration.</summary>
-    private CancellationToken registeredToken;
+    private CancellationToken _registeredToken;
     /// <summary>Prevents duplicate completion notifications.</summary>
-    private bool finished;
+    private bool _finished;
     /// <summary>Prevents callbacks after disposal.</summary>
-    private bool disposed;
+    private bool _disposed;
 
     /// <inheritdoc/>
     protected override void OnParametersSet()
     {
         ArgumentNullException.ThrowIfNull(Media);
-        if (!ReferenceEquals(source, Media))
+        if (!ReferenceEquals(_source, Media))
         {
-            registration.Dispose();
-            registration = default;
-            draft?.Dispose();
-            draft = null;
-            finished = false;
-            draft = MediaSettingsDraft.Create(Media);
-            source = Media;
+            _registration.Dispose();
+            _registration = default;
+            _draft?.Dispose();
+            _draft = null;
+            _finished = false;
+            _draft = MediaSettingsDraft.Create(Media);
+            _source = Media;
         }
-        if (registeredToken != CancellationToken || registration == default)
+        if (_registeredToken != CancellationToken || _registration == default)
         {
-            registration.Dispose();
-            registeredToken = CancellationToken;
-            var currentDraft = draft;
+            _registration.Dispose();
+            _registeredToken = CancellationToken;
+            var currentDraft = _draft;
             var currentToken = CancellationToken;
-            registration = CancellationToken.Register(() =>
+            _registration = CancellationToken.Register(() =>
             {
                 _ = InvokeAsync(async () =>
                 {
-                    if (!disposed && ReferenceEquals(draft, currentDraft) && currentToken == CancellationToken) { await Finish(false); StateHasChanged(); }
+                    if (!_disposed && ReferenceEquals(_draft, currentDraft) && currentToken == CancellationToken) { await Finish(false); StateHasChanged(); }
                 });
             });
         }
@@ -89,16 +89,16 @@
     /// <returns>A task completing after the host callback.</returns>
     private async Task Finish(bool accepted)
     {
-        if (disposed || finished) { return; }
-        finished = true;
-        draft?.Dispose();
+        if (_disposed || _finished) { return; }
+        _finished = true;
+        _draft?.Dispose();
         await Completed.InvokeAsync(accepted);
     }
     /// <summary>Discards pending edits and unregisters cancellation.</summary>
     public void Dispose()
     {
-        disposed = true;
-        registration.Dispose();
-        draft?.Dispose();
+        _disposed = true;
+        _registration.Dispose();
+        _draft?.Dispose();
     }
 }

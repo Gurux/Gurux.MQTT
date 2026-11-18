@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>Annullera</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>Klientinställningar:</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>Ogiltig mäklaradress.</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>Ogiltig klient.</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>Ogiltig anslutning.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>Ogiltigt ämne.</value>
@@ -152,9 +146,6 @@
   </data>
   <data name="TopicTxt" xml:space="preserve">
     <value>Ämne</value>
-  </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>Okänt svar</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>Media är stängt.</value>

@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>Utzi</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>Bezeroaren ezarpenak:</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>Agente-helbide baliogabea.</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>Bezero baliogabea.</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>Konexio baliogabea.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>Gai baliogabea.</value>
@@ -152,9 +146,6 @@
   </data>
   <data name="TopicTxt" xml:space="preserve">
     <value>Gai</value>
-  </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>Erantzun ezezaguna</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>Komunikabideak itxita daude.</value>

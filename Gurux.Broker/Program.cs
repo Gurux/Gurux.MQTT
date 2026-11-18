@@ -29,6 +29,7 @@ using Gurux.Common;
 using MQTTnet;
 using MQTTnet.Server;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
@@ -40,7 +41,7 @@ namespace Gurux.Broker
     class Program
     {
         /// <summary>Trace verbosity selected by the command-line options.</summary>
-        static TraceLevel trace = TraceLevel.Error;
+        static TraceLevel _trace = TraceLevel.Error;
 
         /// <summary>Parses broker options and runs the application until shutdown is requested.</summary>
         /// <param name="args">Command-line options selecting broker address, port and trace verbosity.</param>
@@ -63,7 +64,7 @@ namespace Gurux.Broker
                             //Trace.
                             try
                             {
-                                trace = (TraceLevel)Enum.Parse(typeof(TraceLevel), it.Value);
+                                _trace = (TraceLevel)Enum.Parse(typeof(TraceLevel), it.Value);
                             }
                             catch (Exception)
                             {
@@ -122,16 +123,16 @@ namespace Gurux.Broker
             .WithDefaultEndpointPort(port)
             .Build();
             optionsBuilder.DefaultEndpointOptions.IsEnabled = true;
-            var mqttServer = new MqttFactory().CreateMqttServer(optionsBuilder);
+            var mqttServer = new MqttServerFactory().CreateMqttServer(optionsBuilder);
             mqttServer.InterceptingPublishAsync += args =>
             {
                 if (args.ClientId != null)
                 {
-                    if (trace == TraceLevel.Verbose)
+                    if (_trace == TraceLevel.Verbose)
                     {
                         Console.WriteLine(global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("ReceivedMessage", global::Gurux.Broker.Properties.Resources.Culture));
                         Console.WriteLine(string.Format(System.Globalization.CultureInfo.CurrentCulture, global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("TopicDetail", global::Gurux.Broker.Properties.Resources.Culture), args.ApplicationMessage.Topic));
-                        Console.WriteLine(string.Format(System.Globalization.CultureInfo.CurrentCulture, global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("PayloadDetail", global::Gurux.Broker.Properties.Resources.Culture), Encoding.UTF8.GetString(args.ApplicationMessage.PayloadSegment.AsSpan())));
+                        Console.WriteLine(string.Format(System.Globalization.CultureInfo.CurrentCulture, global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("PayloadDetail", global::Gurux.Broker.Properties.Resources.Culture), Encoding.UTF8.GetString(args.ApplicationMessage.Payload.ToArray())));
                     }
                 }
                 return Task.CompletedTask;
@@ -146,7 +147,7 @@ namespace Gurux.Broker
         /// <returns>An already completed task after handling the notification.</returns>
         private static Task OnClientConnectedAsync(ClientConnectedEventArgs arg)
         {
-            if (trace == TraceLevel.Verbose)
+            if (_trace == TraceLevel.Verbose)
             {
                 Console.WriteLine(string.Format(System.Globalization.CultureInfo.CurrentCulture, global::Gurux.Broker.Properties.Resources.ResourceManager.GetString("ClientConnected", global::Gurux.Broker.Properties.Resources.Culture), arg.ClientId));
             }

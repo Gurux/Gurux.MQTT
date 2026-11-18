@@ -155,29 +155,29 @@ namespace Gurux.Broker
             /// <summary>The configured transport.</summary>
             public readonly Media Media;
             /// <summary>Bounded queue separating MQTT dispatch from transport operations.</summary>
-            private readonly Channel<GXMessage> Requests = Channel.CreateBounded<GXMessage>(64);
+            private readonly Channel<GXMessage> _requests = Channel.CreateBounded<GXMessage>(64);
             /// <summary>Bounded queue for received transport frames.</summary>
-            private readonly Channel<(GXMessage Owner, byte[] Data)> received = Channel.CreateBounded<(GXMessage, byte[])>(128);
+            private readonly Channel<(GXMessage Owner, byte[] Data)> _received = Channel.CreateBounded<(GXMessage, byte[])>(128);
             /// <summary>Records a bounded queue or worker failure for the bridge lifetime task.</summary>
             public Exception Failure;
             /// <summary>MQTT connection owned by the bridge.</summary>
-            private readonly IMqttClient client;
+            private readonly IMqttClient _client;
             /// <summary>Bridge cancellation source, also canceled on bounded queue overflow.</summary>
-            private readonly CancellationTokenSource lifetime;
+            private readonly CancellationTokenSource _lifetime;
             /// <summary>Gate serializing reset with requests.</summary>
-            private readonly SemaphoreSlim gate = new(1, 1);
+            private readonly SemaphoreSlim _gate = new(1, 1);
             /// <summary>Open request whose sender exclusively owns the transport.</summary>
-            private GXMessage owner;
+            private GXMessage _owner;
             /// <summary>Cancellation for the currently open transport operation.</summary>
-            private CancellationTokenSource sessionCancellation;
+            private CancellationTokenSource _sessionCancellation;
             /// <summary>Protects cancellation source replacement against dispatch callbacks.</summary>
-            private readonly object cancellationSync = new();
+            private readonly object _cancellationSync = new();
             /// <summary>Transport request worker.</summary>
-            private readonly Task worker;
+            private readonly Task _worker;
             /// <summary>Receive publication worker.</summary>
-            private readonly Task publisher;
+            private readonly Task _publisher;
             /// <summary>Diagnostic verbosity.</summary>
-            private readonly TraceLevel trace;
+            private readonly TraceLevel _trace;
             /// <summary>Creates workers and attaches the bounded receive callback.</summary>
             /// <param name="media">Meter transport.</param>
             /// <param name="mqtt">Shared MQTT client.</param>
@@ -185,21 +185,21 @@ namespace Gurux.Broker
             /// <param name="verbosity">Diagnostic verbosity.</param>
             public Session(Media media, IMqttClient mqtt, CancellationTokenSource cancellation, TraceLevel verbosity)
             {
-                Media = media; client = mqtt; lifetime = cancellation; trace = verbosity;
+                Media = media; _client = mqtt; _lifetime = cancellation; _trace = verbosity;
                 Media.Target.OnReceived += Received;
-                worker = WorkAsync(); publisher = PublishReceivedAsync();
+                _worker = WorkAsync(); _publisher = PublishReceivedAsync();
             }
             /// <summary>Queues a request and interrupts an owner-requested close without blocking MQTT dispatch.</summary>
             /// <param name="request">Incoming protocol request.</param>
             /// <returns>Whether the bounded request queue accepted the request.</returns>
             public bool Enqueue(GXMessage request)
             {
-                GXMessage current = Volatile.Read(ref owner);
+                GXMessage current = Volatile.Read(ref _owner);
                 if ((MessageType)request.type == MessageType.Close && current != null && current.sender == request.sender)
                 {
                     CancelSession();
                 }
-                bool accepted = Requests.Writer.TryWrite(request);
+                bool accepted = _requests.Writer.TryWrite(request);
                 if (!accepted) { Fail(new System.IO.IOException(Text("BridgeQueueFull"))); }
                 return accepted;
             }
@@ -208,8 +208,8 @@ namespace Gurux.Broker
             /// <param name="args">Received frame.</param>
             private void Received(object sender, ReceiveEventArgs args)
             {
-                GXMessage current = Volatile.Read(ref owner);
-                if (current != null && !received.Writer.TryWrite((current, ((byte[])args.Data).AsSpan().ToArray()))) { Fail(new System.IO.IOException(Text("BridgeQueueFull"))); }
+                GXMessage current = Volatile.Read(ref _owner);
+                if (current != null && !_received.Writer.TryWrite((current, ((byte[])args.Data).AsSpan().ToArray()))) { Fail(new System.IO.IOException(Text("BridgeQueueFull"))); }
             }
             /// <summary>Publishes a protocol reply to its requesting sender.</summary>
             /// <param name="request">Request identifying the recipient and correlation identifier.</param>
@@ -220,7 +220,7 @@ namespace Gurux.Broker
             private async Task ReplyAsync(GXMessage request, MessageType type, string frame = null, string error = null)
             {
                 var reply = new GXMessage { id = request.id, sender = Media.Name, type = (int)type, frame = frame, exception = error };
-                await client.PublishAsync(new MqttApplicationMessageBuilder().WithTopic(request.sender).WithPayload(JsonSerializer.Serialize(reply)).WithQualityOfServiceLevel(MqttQualityOfServiceLevel.ExactlyOnce).Build(), lifetime.Token);
+                await _client.PublishAsync(new MqttApplicationMessageBuilder().WithTopic(request.sender).WithPayload(JsonSerializer.Serialize(reply)).WithQualityOfServiceLevel(MqttQualityOfServiceLevel.ExactlyOnce).Build(), _lifetime.Token);
             }
             /// <summary>Publishes transport frames only while the snapshotted session still owns the meter.</summary>
             /// <returns>The receive worker lifetime.</returns>
@@ -228,12 +228,12 @@ namespace Gurux.Broker
             {
                 try
                 {
-                    await foreach (var item in received.Reader.ReadAllAsync(lifetime.Token))
+                    await foreach (var item in _received.Reader.ReadAllAsync(_lifetime.Token))
                     {
-                        if (ReferenceEquals(item.Owner, Volatile.Read(ref owner))) { await ReplyAsync(item.Owner, MessageType.Receive, Convert.ToHexString(item.Data)); }
+                        if (ReferenceEquals(item.Owner, Volatile.Read(ref _owner))) { await ReplyAsync(item.Owner, MessageType.Receive, Convert.ToHexString(item.Data)); }
                     }
                 }
-                catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { }
+                catch (OperationCanceledException) when (_lifetime.IsCancellationRequested) { }
                 catch (Exception ex) { Fail(ex); }
             }
             /// <summary>Processes requests sequentially, rejects foreign owners and reopens a new same-owner generation.</summary>
@@ -242,61 +242,61 @@ namespace Gurux.Broker
             {
                 try
                 {
-                    await foreach (GXMessage request in Requests.Reader.ReadAllAsync(lifetime.Token))
+                    await foreach (GXMessage request in _requests.Reader.ReadAllAsync(_lifetime.Token))
                     {
-                        await gate.WaitAsync(lifetime.Token);
+                        await _gate.WaitAsync(_lifetime.Token);
                         try
                         {
-                            if (owner != null && owner.sender != request.sender) { throw new InvalidOperationException(Text("SessionOwned")); }
+                            if (_owner != null && _owner.sender != request.sender) { throw new InvalidOperationException(Text("SessionOwned")); }
                             switch ((MessageType)request.type)
                             {
                                 case MessageType.Open:
-                                    if (owner != null && owner.id != request.id)
+                                    if (_owner != null && _owner.id != request.id)
                                     {
                                         CancelSession();
-                                        Volatile.Write(ref owner, null);
+                                        Volatile.Write(ref _owner, null);
                                         await Media.Target.CloseAsync();
                                     }
-                                    if (owner == null)
+                                    if (_owner == null)
                                     {
-                                        lock (cancellationSync)
+                                        lock (_cancellationSync)
                                         {
-                                            sessionCancellation?.Dispose();
-                                            sessionCancellation = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token);
+                                            _sessionCancellation?.Dispose();
+                                            _sessionCancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
                                         }
-                                        Volatile.Write(ref owner, request);
+                                        Volatile.Write(ref _owner, request);
                                         try
                                         {
                                             if (Media.UseOpticalHead && Media.Target is GXSerial optical)
                                             {
                                                 optical.BaudRate = 300; optical.DataBits = 7; optical.Parity = Parity.Even; optical.StopBits = StopBits.One;
                                             }
-                                            await Media.Target.OpenAsync(sessionCancellation.Token);
-                                            if (Media.UseOpticalHead && Media.Target is GXSerial) { await InitializeIECAsync(trace, Media, sessionCancellation.Token); }
+                                            await Media.Target.OpenAsync(_sessionCancellation.Token);
+                                            if (Media.UseOpticalHead && Media.Target is GXSerial) { await InitializeIECAsync(_trace, Media, _sessionCancellation.Token); }
                                         }
-                                        catch { Volatile.Write(ref owner, null); await Media.Target.CloseAsync(); throw; }
-                                        Volatile.Write(ref owner, request);
+                                        catch { Volatile.Write(ref _owner, null); await Media.Target.CloseAsync(); throw; }
+                                        Volatile.Write(ref _owner, request);
                                     }
                                     await ReplyAsync(request, MessageType.Open);
                                     break;
                                 case MessageType.Send:
-                                    if (owner == null) { throw new InvalidOperationException(Text("SessionNotOpen")); }
-                                    await Media.Target.SendAsync(Convert.FromHexString((request.frame ?? "").Replace(" ", "")), cancellationToken: sessionCancellation.Token);
+                                    if (_owner == null) { throw new InvalidOperationException(Text("SessionNotOpen")); }
+                                    await Media.Target.SendAsync(Convert.FromHexString((request.frame ?? "").Replace(" ", "")), cancellationToken: _sessionCancellation.Token);
                                     break;
                                 case MessageType.Close:
                                     CancelSession();
-                                    Volatile.Write(ref owner, null);
+                                    Volatile.Write(ref _owner, null);
                                     await Media.Target.CloseAsync();
                                     await ReplyAsync(request, MessageType.Close);
                                     break;
                             }
                         }
-                        catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { break; }
+                        catch (OperationCanceledException) when (_lifetime.IsCancellationRequested) { break; }
                         catch (Exception ex) { await ReplyAsync(request, MessageType.Exception, error: ex.Message); }
-                        finally { gate.Release(); }
+                        finally { _gate.Release(); }
                     }
                 }
-                catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { }
+                catch (OperationCanceledException) when (_lifetime.IsCancellationRequested) { }
                 catch (Exception ex) { Fail(ex); }
             }
             /// <summary>Records the first worker failure and stops the bridge to prevent silent message loss.</summary>
@@ -304,36 +304,36 @@ namespace Gurux.Broker
             private void Fail(Exception error)
             {
                 Interlocked.CompareExchange(ref Failure, error, null);
-                lifetime.Cancel();
+                _lifetime.Cancel();
             }
             /// <summary>Interrupts the current operation while preserving cancellation-source lifetime.</summary>
             private void CancelSession()
             {
-                lock (cancellationSync) { sessionCancellation?.Cancel(); }
+                lock (_cancellationSync) { _sessionCancellation?.Cancel(); }
             }
             /// <summary>Closes the meter and clears ownership after broker disconnect.</summary>
             /// <returns>The asynchronous reset.</returns>
             public async Task ResetAsync()
             {
                 CancelSession();
-                await gate.WaitAsync();
+                await _gate.WaitAsync();
                 try
                 {
-                    while (Requests.Reader.TryRead(out _)) { }
-                    Volatile.Write(ref owner, null); await Media.Target.CloseAsync();
+                    while (_requests.Reader.TryRead(out _)) { }
+                    Volatile.Write(ref _owner, null); await Media.Target.CloseAsync();
                 }
-                finally { gate.Release(); }
+                finally { _gate.Release(); }
             }
             /// <summary>Awaits workers, detaches receive handling and disposes the transport.</summary>
             /// <returns>The complete session shutdown.</returns>
             public async Task StopAsync()
             {
-                Requests.Writer.TryComplete(); received.Writer.TryComplete();
-                await Task.WhenAll(worker, publisher);
+                _requests.Writer.TryComplete(); _received.Writer.TryComplete();
+                await Task.WhenAll(_worker, _publisher);
                 Media.Target.OnReceived -= Received;
                 await ResetAsync(); await Media.Target.DisposeAsync();
-                lock (cancellationSync) { sessionCancellation?.Dispose(); sessionCancellation = null; }
-                gate.Dispose();
+                lock (_cancellationSync) { _sessionCancellation?.Dispose(); _sessionCancellation = null; }
+                _gate.Dispose();
             }
         }
 

@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>отменить</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>Настройки клиента:</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>Неверный адрес брокера.</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>Неверный клиент.</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>Неверное соединение.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>Неверная тема.</value>
@@ -152,9 +146,6 @@
   </data>
   <data name="TopicTxt" xml:space="preserve">
     <value>Тема</value>
-  </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>Неизвестный ответ</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>СМИ закрыты.</value>

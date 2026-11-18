@@ -35,18 +35,18 @@ namespace Gurux.MQTT;
 public partial class GXMqtt
 {
     /// <summary>Stores the most recently committed immutable connection settings.</summary>
-    private MqttSettings configuration = new();
+    private MqttSettings _configuration = new();
     /// <summary>Gets or sets the broker host name or IP address while closed.</summary>
-    public string ServerAddress { get => configuration.ServerAddress; set => ChangeSettings(s => s with { ServerAddress = value ?? string.Empty }); }
+    public string ServerAddress { get => _configuration.ServerAddress; set => ChangeSettings(s => s with { ServerAddress = value ?? string.Empty }); }
     /// <summary>Gets or sets the broker TCP port, validated when opening.</summary>
-    public int Port { get => configuration.Port; set => ChangeSettings(s => s with { Port = value }); }
+    public int Port { get => _configuration.Port; set => ChangeSettings(s => s with { Port = value }); }
     /// <summary>Gets or sets the exact Gurux bridge meter request topic.</summary>
-    public string Topic { get => configuration.Topic; set => ChangeSettings(s => s with { Topic = value ?? string.Empty }); }
+    public string Topic { get => _configuration.Topic; set => ChangeSettings(s => s with { Topic = value ?? string.Empty }); }
     /// <summary>Gets or sets the client and reply-topic identifier; empty generates a new UUID for each opening.</summary>
-    public string ClientId { get => configuration.ClientId; set => ChangeSettings(s => s with { ClientId = value ?? string.Empty }); }
+    public string ClientId { get => _configuration.ClientId; set => ChangeSettings(s => s with { ClientId = value ?? string.Empty }); }
     /// <summary>Gets or sets the opening/send timeout in seconds; zero removes those deadlines.</summary>
     /// <remarks>Shutdown always bounds the remote close handshake to at most ten seconds.</remarks>
-    public uint AsyncWaitTime { get => configuration.AsyncWaitTime; set => ChangeSettings(s => s with { AsyncWaitTime = value }); }
+    public uint AsyncWaitTime { get => _configuration.AsyncWaitTime; set => ChangeSettings(s => s with { AsyncWaitTime = value }); }
     /// <summary>Gets or replaces legacy XML fragments with escaped values; null restores defaults.</summary>
     /// <exception cref="System.Xml.XmlException">The XML is malformed.</exception>
     /// <exception cref="InvalidOperationException">A session is active or changing state.</exception>
@@ -54,7 +54,7 @@ public partial class GXMqtt
     {
         get
         {
-            MqttSettings s = configuration;
+            MqttSettings s = _configuration;
             return string.Concat(new XElement("Settings", new XElement("IP", s.ServerAddress),
                 new XElement("Port", s.Port), new XElement("Topic", s.Topic),
                 new XElement("ClientId", s.ClientId), new XElement("AsyncWaitTime", s.AsyncWaitTime))
@@ -80,7 +80,7 @@ public partial class GXMqtt
     /// <exception cref="InvalidOperationException">A session is active or changing state.</exception>
     public override string? JsonSettings
     {
-        get => JsonSerializer.Serialize(configuration, MqttJsonContext.Default.MqttSettings);
+        get => JsonSerializer.Serialize(_configuration, MqttJsonContext.Default.MqttSettings);
         set
         {
             MqttSettings parsed = value is null ? new() : JsonSerializer.Deserialize(value, MqttJsonContext.Default.MqttSettings) ?? throw new JsonException();
@@ -92,11 +92,11 @@ public partial class GXMqtt
     /// <exception cref="InvalidOperationException">Opening, closing or an active session prevents editing.</exception>
     private void ChangeSettings(Func<MqttSettings, MqttSettings> change)
     {
-        lock (admission)
+        lock (_admission)
         {
-            if (session is not null) { throw new InvalidOperationException(Resources.Get("CloseBeforeSettings")); }
-            MqttSettings parsed = change(configuration);
-            configuration = parsed with
+            if (_session is not null) { throw new InvalidOperationException(Resources.Get("CloseBeforeSettings")); }
+            MqttSettings parsed = change(_configuration);
+            _configuration = parsed with
             {
                 ServerAddress = parsed.ServerAddress ?? string.Empty,
                 Topic = parsed.Topic ?? string.Empty,
@@ -107,7 +107,7 @@ public partial class GXMqtt
     /// <inheritdoc/>
     public override IReadOnlyList<GXValidationError> Validate()
     {
-        MqttSettings s = configuration;
+        MqttSettings s = _configuration;
         var errors = new List<GXValidationError>();
         if (string.IsNullOrWhiteSpace(s.ServerAddress))
         {

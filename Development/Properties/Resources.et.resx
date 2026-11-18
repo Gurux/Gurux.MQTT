@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>Tühista</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>Kliendi seaded:</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>Vale maakleri aadress.</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>Vale klient.</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>Kehtetu ühendus.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>Vale teema.</value>
@@ -152,9 +146,6 @@
   </data>
   <data name="TopicTxt" xml:space="preserve">
     <value>Teema</value>
-  </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>Tundmatu vastus</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>Meedia on suletud.</value>

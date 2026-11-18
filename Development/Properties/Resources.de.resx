@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>Stornieren</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>Client-Einstellungen:</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>Ungültige Brokeradresse.</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>Ungültiger Client.</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>Ungültige Verbindung.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>Ungültiges Thema.</value>
@@ -152,9 +146,6 @@
   </data>
   <data name="TopicTxt" xml:space="preserve">
     <value>Thema</value>
-  </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>Unbekannte Antwort</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>Medien sind geschlossen.</value>

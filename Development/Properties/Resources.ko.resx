@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>취소</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>클라이언트 설정 :</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>브로커 주소가 잘못되었습니다.</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>잘못된 클라이언트입니다.</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>잘못된 연결입니다.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>잘못된 주제입니다.</value>
@@ -152,9 +146,6 @@
   </data>
   <data name="TopicTxt" xml:space="preserve">
     <value>이야기</value>
-  </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>알 수없는 응답</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>미디어가 닫혔습니다.</value>

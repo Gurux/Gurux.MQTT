@@ -123,9 +123,6 @@
   <data name="Cancel" xml:space="preserve">
     <value>Peruuta</value>
   </data>
-  <data name="ClientSettings" xml:space="preserve">
-    <value>Asiakkaan asetukset:</value>
-  </data>
   <data name="InvalidBrokerName" xml:space="preserve">
     <value>Virheellinen välittäjän osoite.</value>
   </data>
@@ -134,9 +131,6 @@
   </data>
   <data name="InvalidClient" xml:space="preserve">
     <value>Virheellinen asiakas.</value>
-  </data>
-  <data name="InvalidConnection" xml:space="preserve">
-    <value>Virheellinen yhteys.</value>
   </data>
   <data name="InvalidTopic" xml:space="preserve">
     <value>Virheellinen aihe.</value>
@@ -152,9 +146,6 @@
   </data>
   <data name="TopicTxt" xml:space="preserve">
     <value>Aihe</value>
-  </data>
-  <data name="UnknownReply" xml:space="preserve">
-    <value>Tuntematon vastaus</value>
   </data>
   <data name="MediaIsClosed" xml:space="preserve">
     <value>Media on suljettu.</value>

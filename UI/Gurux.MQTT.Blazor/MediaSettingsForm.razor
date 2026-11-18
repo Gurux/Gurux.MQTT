@@ -60,12 +60,12 @@
             }
         </div>
     }
-    @if (error is not null) { <p role="alert" class="text-danger">@error</p> }
+    @if (_error is not null) { <p role="alert" class="text-danger">@_error</p> }
     @if (!Embedded)
     {
     <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-primary" disabled="@completed">@Properties.Resources.Save</button>
-        <button type="button" class="btn btn-secondary" @onclick="Cancel" disabled="@completed">@Properties.Resources.Cancel</button>
+        <button type="submit" class="btn btn-primary" disabled="@_completed">@Properties.Resources.Save</button>
+        <button type="button" class="btn btn-secondary" @onclick="Cancel" disabled="@_completed">@Properties.Resources.Cancel</button>
     </div>
     }
 </EditForm>
@@ -79,29 +79,29 @@
     /// <summary>Cancels this editing session without saving.</summary>
     [Parameter] public CancellationToken CancellationToken { get; set; }
     /// <summary>Stores a localized validation message.</summary>
-    private string? error;
+    private string? _error;
     /// <summary>Prevents duplicate form submissions.</summary>
-    private bool completed;
+    private bool _completed;
     /// <summary>Validates and commits the staged values.</summary>
     /// <returns>A task completing after save notification.</returns>
     private async Task Save()
     {
-        if (completed || Embedded) { return; }
+        if (_completed || Embedded) { return; }
         try
         {
             CancellationToken.ThrowIfCancellationRequested();
             Draft.Commit();
-            completed = true;
+            _completed = true;
             await Completed.InvokeAsync(true);
         }
-        catch (Exception) { error = Properties.Resources.InvalidSettings; }
+        catch (Exception) { _error = Properties.Resources.InvalidSettings; }
     }
     /// <summary>Notifies the owner to discard edits.</summary>
     /// <returns>A task completing after cancellation notification.</returns>
     private async Task Cancel()
     {
-        if (completed) { return; }
-        completed = true;
+        if (_completed) { return; }
+        _completed = true;
         await Completed.InvokeAsync(false);
     }
 }

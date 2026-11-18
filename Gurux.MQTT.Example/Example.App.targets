@@ -9,7 +9,7 @@
     <Content Include="$(ExampleRoot)/UI/Desktop/Linux/org.gurux.examples.mqtt.desktop" Link="Linux/org.gurux.examples.mqtt.desktop" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="$(ExampleRoot)/UI/Desktop/Linux/install-desktop.py" Link="Linux/install-desktop.py" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="$(ExampleRoot)/Resources/AppIcon/appicon.png" Link="Linux/org.gurux.examples.mqtt.png" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
-    <ProjectReference Include="$(ExampleRoot)/../UI/Gurux.MQTT.Avalonia/Gurux.MQTT.Avalonia.csproj" AdditionalProperties="GuruxExamplesBuild=true" />
+    <PackageReference Include="Gurux.MQTT.Avalonia" Version="9.0.2611.1801" />
     <PackageReference Include="Avalonia.Desktop" Version="12.1.6" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.6" />
   </ItemGroup>
@@ -17,9 +17,8 @@
     <MauiIcon Include="$(ExampleRoot)/Resources/AppIcon/appicon.png" Color="#FFFFFF" Resize="true" />
     <Compile Include="$(ExampleRoot)/UI/Maui/**/*.cs" Exclude="$(ExampleRoot)/UI/Maui/**/bin/**;$(ExampleRoot)/UI/Maui/**/obj/**;$(ExampleRoot)/UI/Maui/**/Tests/**;$(ExampleRoot)/UI/Maui/Platforms/**" />
     <EmbeddedResource Include="$(ExampleRoot)/UI/Maui/Properties/ExampleSettingsResources.resx" LogicalName="Gurux.MQTT.Example.Maui.Properties.ExampleSettingsResources.resources" />
-    <ProjectReference Include="$(ExampleRoot)/../UI/Gurux.MQTT.Maui/Gurux.MQTT.Maui.csproj" AdditionalProperties="GuruxExamplesBuild=true" />
-    <PackageReference Include="Microsoft.Maui.Controls" Version="[11.0.10,12.0.0)" Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) == '11.0'" />
-    <PackageReference Include="Microsoft.Maui.Controls" Version="[10.0.110,11.0.0)" Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) == '10.0'" />
+    <PackageReference Include="Gurux.MQTT.Maui" Version="9.0.2611.1801" />
+    <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
   </ItemGroup>
   <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
     <ApplicationDefinition Include="$(ExampleRoot)/UI/Maui/Platforms/Windows/App.xaml" Link="Platforms/Windows/App.xaml" />

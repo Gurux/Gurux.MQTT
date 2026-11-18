@@ -37,9 +37,9 @@ namespace Gurux.Shared
     partial class PropertiesForm : Form
     {
         /// <summary>Property page whose staged changes are applied by the acceptance button.</summary>
-        IGXPropertyPage Properties;
+        IGXPropertyPage _properties;
         /// <summary>Online help address opened when the user requests help.</summary>
-        string HelpLink;
+        string _helpLink;
 
         /// <summary>
         /// Constructor.
@@ -57,10 +57,10 @@ namespace Gurux.Shared
             string cancelBtnText, 
             string helpLink)
         {
-            HelpLink = helpLink;
-            Properties = (IGXPropertyPage)properties;
+            _helpLink = helpLink;
+            _properties = (IGXPropertyPage)properties;
             InitializeComponent();
-            Properties.Initialize();
+            _properties.Initialize();
             if (string.IsNullOrEmpty(helpLink))
             {
                 HelpButton = false;
@@ -109,7 +109,7 @@ namespace Gurux.Shared
         /// <param name="e">Event data supplied by the editor control.</param>
         void PropertiesForm_LocationChanged(object sender, EventArgs e)
         {
-            (Properties as Form).Location = this.Location;
+            (_properties as Form).Location = this.Location;
         }
 
         /// <summary>Applies the staged settings and displays any validation error.</summary>
@@ -119,7 +119,7 @@ namespace Gurux.Shared
         {
             try
             {
-                Properties.Apply();
+                _properties.Apply();
             }
             catch (Exception ex)
             {
@@ -136,7 +136,7 @@ namespace Gurux.Shared
             try
             {
                 // Show online help.
-                Process.Start(HelpLink);
+                Process.Start(_helpLink);
                 // Set flag to show that the Help event as been handled
                 hevent.Handled = true;
             }
